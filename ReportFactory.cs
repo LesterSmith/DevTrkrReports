@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BusinessObjects;
+﻿using BusinessObjects;
 namespace DevTrkrReports
 {
     public static class ReportFactory 
@@ -60,7 +55,18 @@ namespace DevTrkrReports
                         EndTime = parms.EndTime
                     };
                     return prp;
-
+                case ReportType.ProjectDetail:
+                    var pd = (Reporter)new ProjectDetail
+                    {
+                        FileName = parms.FileName,
+                        Title = parms.Header.Title,
+                        TitleCell = parms.Header.TitleCell,
+                        ColHdrs = parms.Header.Hdrs,
+                        HdrRange = parms.Header.HdrRange,
+                        StartTime = parms.StartTime,
+                        EndTime = parms.EndTime
+                    };
+                    return pd;
                 default:
                     return null;
             }

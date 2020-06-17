@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using BusinessObjects;
 using OfficeOpenXml;
 using System.IO;
@@ -8,12 +7,12 @@ using DataHelpers;
 using System.Windows.Forms;
 using System.Data;
 using System.Diagnostics;
-
+using AppWrapper;
 namespace DevTrkrReports
 {
     internal class ProjectReportByProject : Reporter
     {
-        public bool Process(List<DevProjPath> projects, List<DeveloperNames> developers) //, DateTime startTime, DateTime endTime)
+        public bool Process(List<ReportProjects> projects, List<DeveloperNames> developers) //, DateTime startTime, DateTime endTime)
         {
             try
             {
@@ -31,7 +30,7 @@ namespace DevTrkrReports
             }
         }
 
-        private void PopulateSheet(List<DevProjPath> projects, List<DeveloperNames> developers, DateTime? startTime, DateTime? endTime)
+        private void PopulateSheet(List<ReportProjects> projects, List<DeveloperNames> developers, DateTime? startTime, DateTime? endTime)
         {
             try
             {
@@ -152,17 +151,16 @@ namespace DevTrkrReports
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.Message);
+                Util.LogError(ex, true);
             }
         }
 
-        //TODO group by username
         /// <summary>
         /// 
         /// Dynamic SQL either has to be built here or in a stored procedure.
         /// It is easier here and just as safe b/c there are no parameters.
         /// </summary>
-        private string CreateSQL(List<DevProjPath> projects, List<DeveloperNames> developers, DateTime? startTime, DateTime? endTime)
+        private string CreateSQL(List<ReportProjects> projects, List<DeveloperNames> developers, DateTime? startTime, DateTime? endTime)
         {
             string sql =
             "SET NOCOUNT ON; " +

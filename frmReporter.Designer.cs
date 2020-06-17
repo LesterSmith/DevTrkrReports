@@ -28,14 +28,21 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmReporter));
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.lvProjects = new System.Windows.Forms.ListView();
+            this.Projects = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.Developers = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.Developer = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.projectsContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.projectsCheckAll = new System.Windows.Forms.ToolStripMenuItem();
+            this.projectsUncheckAll = new System.Windows.Forms.ToolStripMenuItem();
             this.lbApplications = new System.Windows.Forms.ListBox();
             this.label7 = new System.Windows.Forms.Label();
             this.chkUseDates = new System.Windows.Forms.CheckBox();
             this.lbDevelopers = new System.Windows.Forms.ListBox();
-            this.lbProjects = new System.Windows.Forms.ListBox();
             this.btnOpenReport = new System.Windows.Forms.Button();
             this.btnCreateReport = new System.Windows.Forms.Button();
             this.btnFileBrowse = new System.Windows.Forms.Button();
@@ -55,10 +62,9 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuRollupReferencedLibraries = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
+            this.projectsContextMenu.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -70,17 +76,17 @@
             this.tabControl1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(879, 593);
+            this.tabControl1.Size = new System.Drawing.Size(1100, 734);
             this.tabControl1.TabIndex = 0;
             // 
             // tabPage1
             // 
             this.tabPage1.BackColor = System.Drawing.SystemColors.Control;
+            this.tabPage1.Controls.Add(this.lvProjects);
             this.tabPage1.Controls.Add(this.lbApplications);
             this.tabPage1.Controls.Add(this.label7);
             this.tabPage1.Controls.Add(this.chkUseDates);
             this.tabPage1.Controls.Add(this.lbDevelopers);
-            this.tabPage1.Controls.Add(this.lbProjects);
             this.tabPage1.Controls.Add(this.btnOpenReport);
             this.tabPage1.Controls.Add(this.btnCreateReport);
             this.tabPage1.Controls.Add(this.btnFileBrowse);
@@ -101,26 +107,82 @@
             this.tabPage1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.tabPage1.Size = new System.Drawing.Size(871, 560);
+            this.tabPage1.Size = new System.Drawing.Size(1092, 701);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Reports";
+            // 
+            // lvProjects
+            // 
+            this.lvProjects.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.Projects,
+            this.Developers,
+            this.Developer});
+            this.lvProjects.ContextMenuStrip = this.projectsContextMenu;
+            this.lvProjects.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lvProjects.FullRowSelect = true;
+            this.lvProjects.HideSelection = false;
+            this.lvProjects.Location = new System.Drawing.Point(132, 74);
+            this.lvProjects.Name = "lvProjects";
+            this.lvProjects.Size = new System.Drawing.Size(818, 275);
+            this.lvProjects.TabIndex = 21;
+            this.lvProjects.UseCompatibleStateImageBehavior = false;
+            this.lvProjects.View = System.Windows.Forms.View.Details;
+            this.lvProjects.SelectedIndexChanged += new System.EventHandler(this.lvProjects_SelectedIndexChanged);
+            // 
+            // Projects
+            // 
+            this.Projects.Text = "Projects";
+            this.Projects.Width = 213;
+            // 
+            // Developers
+            // 
+            this.Developers.Text = "Developer Count";
+            this.Developers.Width = 140;
+            // 
+            // Developer
+            // 
+            this.Developer.Text = "Creating Developer";
+            this.Developer.Width = 160;
+            // 
+            // projectsContextMenu
+            // 
+            this.projectsContextMenu.ImageScalingSize = new System.Drawing.Size(24, 24);
+            this.projectsContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.projectsCheckAll,
+            this.projectsUncheckAll});
+            this.projectsContextMenu.Name = "projectsContextMenu";
+            this.projectsContextMenu.Size = new System.Drawing.Size(176, 68);
+            // 
+            // projectsCheckAll
+            // 
+            this.projectsCheckAll.Name = "projectsCheckAll";
+            this.projectsCheckAll.Size = new System.Drawing.Size(175, 32);
+            this.projectsCheckAll.Text = "Select All";
+            this.projectsCheckAll.Click += new System.EventHandler(this.projectsCheckAll_Click);
+            // 
+            // projectsUncheckAll
+            // 
+            this.projectsUncheckAll.Name = "projectsUncheckAll";
+            this.projectsUncheckAll.Size = new System.Drawing.Size(175, 32);
+            this.projectsUncheckAll.Text = "Unselect All";
+            this.projectsUncheckAll.Click += new System.EventHandler(this.projectsUncheckAll_Click);
             // 
             // lbApplications
             // 
             this.lbApplications.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lbApplications.FormattingEnabled = true;
             this.lbApplications.ItemHeight = 22;
-            this.lbApplications.Location = new System.Drawing.Point(132, 226);
+            this.lbApplications.Location = new System.Drawing.Point(132, 369);
             this.lbApplications.Name = "lbApplications";
             this.lbApplications.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
-            this.lbApplications.Size = new System.Drawing.Size(288, 114);
+            this.lbApplications.Size = new System.Drawing.Size(288, 136);
             this.lbApplications.TabIndex = 20;
             // 
             // label7
             // 
             this.label7.AutoSize = true;
             this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label7.Location = new System.Drawing.Point(10, 226);
+            this.label7.Location = new System.Drawing.Point(10, 369);
             this.label7.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(112, 20);
@@ -133,7 +195,7 @@
             this.chkUseDates.Checked = true;
             this.chkUseDates.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkUseDates.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chkUseDates.Location = new System.Drawing.Point(416, 382);
+            this.chkUseDates.Location = new System.Drawing.Point(846, 524);
             this.chkUseDates.Name = "chkUseDates";
             this.chkUseDates.Size = new System.Drawing.Size(167, 26);
             this.chkUseDates.TabIndex = 18;
@@ -146,28 +208,17 @@
             this.lbDevelopers.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lbDevelopers.FormattingEnabled = true;
             this.lbDevelopers.ItemHeight = 22;
-            this.lbDevelopers.Location = new System.Drawing.Point(544, 74);
+            this.lbDevelopers.Location = new System.Drawing.Point(662, 369);
             this.lbDevelopers.Name = "lbDevelopers";
             this.lbDevelopers.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
-            this.lbDevelopers.Size = new System.Drawing.Size(288, 114);
+            this.lbDevelopers.Size = new System.Drawing.Size(288, 136);
             this.lbDevelopers.TabIndex = 17;
-            // 
-            // lbProjects
-            // 
-            this.lbProjects.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lbProjects.FormattingEnabled = true;
-            this.lbProjects.ItemHeight = 22;
-            this.lbProjects.Location = new System.Drawing.Point(132, 74);
-            this.lbProjects.Name = "lbProjects";
-            this.lbProjects.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
-            this.lbProjects.Size = new System.Drawing.Size(288, 114);
-            this.lbProjects.TabIndex = 16;
             // 
             // btnOpenReport
             // 
             this.btnOpenReport.Enabled = false;
             this.btnOpenReport.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnOpenReport.Location = new System.Drawing.Point(334, 502);
+            this.btnOpenReport.Location = new System.Drawing.Point(334, 609);
             this.btnOpenReport.Name = "btnOpenReport";
             this.btnOpenReport.Size = new System.Drawing.Size(144, 35);
             this.btnOpenReport.TabIndex = 15;
@@ -178,7 +229,7 @@
             // btnCreateReport
             // 
             this.btnCreateReport.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnCreateReport.Location = new System.Drawing.Point(132, 502);
+            this.btnCreateReport.Location = new System.Drawing.Point(132, 609);
             this.btnCreateReport.Name = "btnCreateReport";
             this.btnCreateReport.Size = new System.Drawing.Size(144, 35);
             this.btnCreateReport.TabIndex = 14;
@@ -190,7 +241,7 @@
             // 
             this.btnFileBrowse.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnFileBrowse.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnFileBrowse.Location = new System.Drawing.Point(808, 455);
+            this.btnFileBrowse.Location = new System.Drawing.Point(1029, 562);
             this.btnFileBrowse.Name = "btnFileBrowse";
             this.btnFileBrowse.Size = new System.Drawing.Size(42, 40);
             this.btnFileBrowse.TabIndex = 13;
@@ -204,16 +255,16 @@
             this.txtFilename.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtFilename.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtFilename.Location = new System.Drawing.Point(132, 458);
+            this.txtFilename.Location = new System.Drawing.Point(132, 565);
             this.txtFilename.Name = "txtFilename";
-            this.txtFilename.Size = new System.Drawing.Size(668, 28);
+            this.txtFilename.Size = new System.Drawing.Size(889, 28);
             this.txtFilename.TabIndex = 12;
             // 
             // label6
             // 
             this.label6.AutoSize = true;
             this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.Location = new System.Drawing.Point(14, 458);
+            this.label6.Location = new System.Drawing.Point(14, 565);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(98, 20);
             this.label6.TabIndex = 11;
@@ -234,7 +285,7 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(8, 423);
+            this.label3.Location = new System.Drawing.Point(425, 530);
             this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(88, 20);
@@ -246,7 +297,7 @@
             this.dtEnd.CustomFormat = "MM/dd/yyyy";
             this.dtEnd.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.dtEnd.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.dtEnd.Location = new System.Drawing.Point(132, 418);
+            this.dtEnd.Location = new System.Drawing.Point(549, 525);
             this.dtEnd.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.dtEnd.Name = "dtEnd";
             this.dtEnd.Size = new System.Drawing.Size(259, 26);
@@ -256,7 +307,7 @@
             // 
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(8, 388);
+            this.label4.Location = new System.Drawing.Point(8, 530);
             this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(97, 20);
@@ -268,7 +319,7 @@
             this.dtStart.CustomFormat = "MM/dd/yyyy";
             this.dtStart.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.dtStart.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.dtStart.Location = new System.Drawing.Point(132, 382);
+            this.dtStart.Location = new System.Drawing.Point(132, 524);
             this.dtStart.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.dtStart.Name = "dtStart";
             this.dtStart.Size = new System.Drawing.Size(259, 26);
@@ -278,7 +329,7 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(428, 78);
+            this.label2.Location = new System.Drawing.Point(551, 369);
             this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(104, 20);
@@ -289,7 +340,7 @@
             // 
             this.label8.AutoSize = true;
             this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label8.Location = new System.Drawing.Point(426, 32);
+            this.label8.Location = new System.Drawing.Point(545, 32);
             this.label8.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(110, 20);
@@ -317,7 +368,7 @@
             "Project Time",
             "User Time",
             "Application Usage"});
-            this.comboBox1.Location = new System.Drawing.Point(548, 28);
+            this.comboBox1.Location = new System.Drawing.Point(662, 28);
             this.comboBox1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(180, 33);
@@ -332,6 +383,7 @@
             "",
             "Project Summary by Project",
             "Project Summary by User",
+            "Project Detail",
             "Developer Detail",
             "Application Usage"});
             this.cbReportType.Location = new System.Drawing.Point(132, 28);
@@ -346,12 +398,10 @@
             this.menuStrip1.GripMargin = new System.Windows.Forms.Padding(2, 2, 0, 2);
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem,
-            this.optionsToolStripMenuItem});
+            this.fileToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Padding = new System.Windows.Forms.Padding(6, 2, 0, 2);
-            this.menuStrip1.Size = new System.Drawing.Size(879, 33);
+            this.menuStrip1.Size = new System.Drawing.Size(1100, 33);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -366,32 +416,16 @@
             // closeToolStripMenuItem
             // 
             this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
-            this.closeToolStripMenuItem.Size = new System.Drawing.Size(174, 34);
-            this.closeToolStripMenuItem.Text = "@Close";
-            // 
-            // optionsToolStripMenuItem
-            // 
-            this.optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuRollupReferencedLibraries});
-            this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
-            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(92, 29);
-            this.optionsToolStripMenuItem.Text = "&Options";
-            // 
-            // mnuRollupReferencedLibraries
-            // 
-            this.mnuRollupReferencedLibraries.Name = "mnuRollupReferencedLibraries";
-            this.mnuRollupReferencedLibraries.Size = new System.Drawing.Size(326, 34);
-            this.mnuRollupReferencedLibraries.Text = "Rollup Referenced Libraries";
-            this.mnuRollupReferencedLibraries.Click += new System.EventHandler(this.mnuRollupReferencedLibraries_Click);
+            this.closeToolStripMenuItem.Size = new System.Drawing.Size(157, 34);
+            this.closeToolStripMenuItem.Text = "&Close";
             // 
             // frmReporter
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(879, 626);
+            this.ClientSize = new System.Drawing.Size(1100, 767);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.menuStrip1);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
             this.MaximizeBox = false;
@@ -404,6 +438,7 @@
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
+            this.projectsContextMenu.ResumeLayout(false);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
@@ -429,7 +464,6 @@
         private System.Windows.Forms.TextBox txtFilename;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.ListBox lbDevelopers;
-        private System.Windows.Forms.ListBox lbProjects;
         private System.Windows.Forms.SaveFileDialog saveFileDialog1;
         private System.Windows.Forms.CheckBox chkUseDates;
         private System.Windows.Forms.ListBox lbApplications;
@@ -439,7 +473,12 @@
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem closeToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem mnuRollupReferencedLibraries;
+        private System.Windows.Forms.ListView lvProjects;
+        private System.Windows.Forms.ColumnHeader Projects;
+        private System.Windows.Forms.ColumnHeader Developers;
+        private System.Windows.Forms.ContextMenuStrip projectsContextMenu;
+        private System.Windows.Forms.ToolStripMenuItem projectsCheckAll;
+        private System.Windows.Forms.ToolStripMenuItem projectsUncheckAll;
+        private System.Windows.Forms.ColumnHeader Developer;
     }
 }

@@ -5,29 +5,44 @@ using System.Windows.Forms;
 using DataHelpers;
 using BusinessObjects;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using AppWrapper;
+using CodeCounter;
+using DevProjects;
 namespace DevTrkrReports
 {
     public partial class frmReporter : Form
     {
         private List<NotableApplication> AppList { get; set; }
-        private List<DevProjPath> ProjList { get; set; }
+        //private List<DevProjPath> ProjList { get; set; }
+        private List<ProjectSync> SyncList { get; set; }
+        private ProjAndSyncReport ProjList { get; set; }
         public frmReporter()
         {
             InitializeComponent();
             Application.DoEvents();
+            this.Height = 520;
         }
-
         private void frmReporter_Load(object sender, EventArgs e)
         {
             Application.DoEvents();
-            var hlpr = new DHMisc(string.Empty);
-            ProjList = hlpr.GetDevProjects();
-            lbProjects.Items.Clear();
-            lbProjects.Items.Add("All");
-            foreach (var item in ProjList)
-                lbProjects.Items.Add(item.DevProjectName);
+            var hlpr = new DHMisc();
+            // i think getting syncs is unneeded since devprojects has the syncid in it
+            // and handling syncs and projects is over complicating this issue
+            // SyncList = hlpr.GetProjectSyncs();
+            ProjList = hlpr.GetProjectsForReporting();
+            lvProjects.Items.Clear();
+            string syncID = string.Empty;
+            foreach (var item in ProjList.Projects)
+            {
+                string sync = item.SyncID;
+                if (sync == syncID) continue;
+                syncID = sync;
+                var lvi = new ListViewItem(item.DevProjectName);
+                lvi.SubItems.Add(item.DevProjectCount.ToString());
+                var displayName = ProjList.Names.Find(x => x.UserName == item.UserName);
+                lvi.SubItems.Add(displayName != null ? displayName.DisplayName : item.UserName);
+                lvProjects.Items.Add(lvi);
+            }
 
             List<DeveloperNames> developers = hlpr.GetDeveloperNames();
             lbDevelopers.Items.Clear();
@@ -55,7 +70,7 @@ namespace DevTrkrReports
             switch (cbReportType.SelectedItem.ToString())
             {
                 case "Project Summary by User":
-                    MarkSelectedProjects();
+                   // MarkSelectedProjects();
                     List<ColHdr> cols = new List<ColHdr>();
                     cols.Add(new ColHdr { Header = "Project Name", Width = 40 });
                     cols.Add(new ColHdr { Header = "Hours", Width = 10 });
@@ -81,20 +96,18 @@ namespace DevTrkrReports
                         });
                     List<DeveloperNames> developers = GetDevelopers(lbDevelopers);
 
-                    if (pr.Process(ProjList, developers)) //, dtStart.Value, dtEnd.Value))
+                    if (pr.Process(ProjList.Projects, developers)) //, dtStart.Value, dtEnd.Value))
                     {
-                        btnOpenReport.Enabled = true;
-                        MessageBox.Show("Your report is created, click Open Report Button to view in Excel.", "Report Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        btnCreateReport.Enabled = false;
+                        ReportCompleteMessage();
                     }
                     else
                     {
-                        MessageBox.Show("For some reason your report did not complete, check you database and notify vendor.", "Report Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        ReportErrorMessage();
                     }
                     pr.Dispose();
                     break;
                 case "Project Summary by Project":
-                    MarkSelectedProjects();
+                    //MarkSelectedProjects();
                     List<ColHdr> colsPP = new List<ColHdr>();
                     colsPP.Add(new ColHdr { Header = "Project Name", Width = 40 });
                     colsPP.Add(new ColHdr { Header = "Hours", Width = 10 });
@@ -121,15 +134,13 @@ namespace DevTrkrReports
                         });
                     List<DeveloperNames> devs = GetDevelopers(lbDevelopers);
 
-                    if (prp.Process(ProjList, devs)) //, dtStart.Value, dtEnd.Value))
+                    if (prp.Process(ProjList.Projects, devs)) //, dtStart.Value, dtEnd.Value))
                     {
-                        btnOpenReport.Enabled = true;
-                        MessageBox.Show("Your report is created, click Open Report Button to view in Excel.", "Report Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        btnCreateReport.Enabled = false;
+                        ReportCompleteMessage();
                     }
                     else
                     {
-                        MessageBox.Show("For some reason your report did not complete, check you database and notify vendor.", "Report Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        ReportErrorMessage();
                     }
                     prp.Dispose();
                     break;
@@ -147,18 +158,16 @@ namespace DevTrkrReports
 
                     if (ar.Process(AppList, users)) //, dtStart.Value, dtEnd.Value))
                     {
-                        btnOpenReport.Enabled = true;
-                        MessageBox.Show("Your report is created, click Open Report Button to view in Excel.", "Report Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        btnCreateReport.Enabled = false;
+                        ReportCompleteMessage();
                     }
                     else
                     {
-                        MessageBox.Show("For some reason your report did not complete, check you database and notify vendor.", "Report Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        ReportErrorMessage();
                     }
                     ar.Dispose();
                     break;
                 case "Developer Detail":
-                    MarkSelectedProjects();
+                    //MarkSelectedProjects();
                     List<ColHdr> colsUR = new List<ColHdr>();
                     colsUR.Add(new ColHdr { Header = "Project Name", Width = 40 });
                     colsUR.Add(new ColHdr { Header = "Hours", Width = 10 });
@@ -170,7 +179,7 @@ namespace DevTrkrReports
                     var urHdr = new ReportHdr { HdrRange = range, Hdrs = colsUR, Title = $"Developer Detail {dv})" , TitleCell = "A1" };
                     UserReport ur = (UserReport)ReportFactory.Factory(new ReporterParms { Header = urHdr, FileName = txtFilename.Text, Type = ReportType.DeveloperDetail, StartTime = chkUseDates.Checked ? dtStart.Value.Date : (DateTime?)null, EndTime = chkUseDates.Checked ? dtEnd.Value.Date : (DateTime?)null }); 
                     List<DeveloperNames> developer = GetDevelopers(lbDevelopers);
-                    if (ur.Process(ProjList, developer))
+                    if (ur.Process(ProjList.Projects, developer))
                     {
                         btnOpenReport.Enabled = true;
                         MessageBox.Show("Your report is created, click Open Report Button to view in Excel.", "Report Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -178,26 +187,119 @@ namespace DevTrkrReports
                     }
                     ur.Dispose();
                     break;
+                case "Project Detail":
+                    List<ColHdr> colsPD = new List<ColHdr>();
+                    colsPD.Add(new ColHdr { Header = "Project Name", Width = 40 });
+                    colsPD.Add(new ColHdr { Header = "Hours", Width = 10 });
+                    colsPD.Add(new ColHdr { Header = "Minutes", Width = 12 });
+                    colsPD.Add(new ColHdr { Header = "Seconds", Width = 12 });
+                    colsPD.Add(new ColHdr { Header = "Developer", Width = 20 });
+                    
+                    var pdHdr = new ReportHdr
+                    {
+                        HdrRange = range,
+                        Hdrs = colsPD,
+                        Title = $"Project Detail Report for Solution {ProjList.Projects[lvProjects.SelectedItems[0].Index].DevProjectName} Collaborating Developers: {ProjList.Projects[lvProjects.SelectedItems[0].Index].DevProjectCount}",
+                        TitleCell = "A1"
+                    };
+                    ProjectDetail pd = (ProjectDetail)ReportFactory.Factory(
+                                new ReporterParms
+                                {
+                                    Header = pdHdr,
+                                    FileName = txtFilename.Text,
+                                    Type = ReportType.ProjectDetail,
+                                    StartTime = chkUseDates.Checked ? dtStart.Value : (DateTime?)null,
+                                    EndTime = chkUseDates.Checked ? dtEnd.Value : (DateTime?)null
+                                });
+                    List<DeveloperNames> devlprs = GetDevelopers(lbDevelopers);
+
+                    // here we need to know if the selected project has a sln file
+                    // if it does we need the list of projects from it to replace
+                    // the projlist.projects or something like it
+                    int ptr = lvProjects.SelectedItems[0].Index;
+                    var slnPath = ProjList.Projects[ptr].DevSLNPath;
+                    List<ProjectNameAndSync> pList;
+                    if (!string.IsNullOrWhiteSpace(slnPath))
+                    {
+                        // the path may have/not have the filename in it, ensure it there
+                        if (Path.GetFileName(slnPath).ToLower().IndexOf(".sln") == -1)
+                            slnPath = Path.Combine(slnPath, $"{Path.GetFileNameWithoutExtension(slnPath)}.sln");
+                        ProcessSolution ps = new ProcessSolution(slnPath, false);
+                        // following line only gets the project fullPath in the PNAS objects
+                        pList = ps.ProjectList;
+                        // we still need the syncID for the project and ProcessSolution
+                        // could not get that for us
+                        if (pList.Count > 1)
+                        {
+                            // the sln had multiple projects, we need a syncID for each
+                            var mp = new MaintainProject();
+                            foreach (var p in pList)
+                            {
+                                string url = mp.GetGitURLFromPath(p.Name);
+                                var o = ProjList.Projects.Find(x => x.GitURL == url && x.DevProjectName == Path.GetFileNameWithoutExtension(p.Name));
+                                if (o != null)
+                                    p.SyncID = o.SyncID;
+                                else
+                                {
+                                    MessageBox.Show($"Could not find a SyncID for {Path.GetFileNameWithoutExtension(p.Name)}, report can't be run.", "Processing Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        pList = new List<ProjectNameAndSync>();
+                        // no solution file, just the selected project will be used
+                        pList.Add(
+                                new ProjectNameAndSync 
+                                { 
+                                    Name = ProjList.Projects[ptr].DevProjectName, 
+                                    SyncID = ProjList.Projects[ptr].SyncID 
+                                });
+                    }
+
+                    if (pd.Process(pList, devlprs))  
+                    {
+                        ReportCompleteMessage();
+                    }
+                    else
+                    {
+                        ReportErrorMessage();
+                    }
+                    pd.Dispose();
+                    break;
             }
         }
 
+        private void ReportCompleteMessage()
+        {
+            btnOpenReport.Enabled = true;
+            MessageBox.Show("Your report is created, click Open Report Button to view in Excel.", "Report Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            btnCreateReport.Enabled = false;
+
+        }
+        private void ReportErrorMessage()
+        {
+            MessageBox.Show("For some reason your report did not complete, check you database and notify vendor.", "Report Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
         private void MarkSelectedProjects()
         {
-            foreach (var p in ProjList)
+            foreach (var p in SyncList)
                 p.Selected = false;
 
-            if (lbProjects.SelectedItems.Count == 1 && lbProjects.SelectedIndices[0] == 0)
-            {
-                foreach (var item in ProjList)
-                {
-                    item.Selected = true;
-                }
-                return;
-            }
+            //if (lvProjects.CheckedItems.Count == 1 && lvProjects.CheckedIndices[0] == 0)
+            //{
+            //    foreach (var item in SyncList)
+            //    {
+            //        item.Selected = true;
+            //    }
+            //    return;
+            //}
 
-            for (int i = 0; i < lbProjects.SelectedItems.Count; i++)
+            for (int i = 0; i < lvProjects.CheckedItems.Count; i++)
             {
-                var prj = ProjList.Find(x => x.DevProjectName == lbProjects.SelectedItems[i].ToString());
+                var prj = SyncList.Find(x => x.DevProjectName == lvProjects.CheckedItems[i].ToString());
                 if (prj != null)
                     prj.Selected = true;
             }
@@ -225,7 +327,7 @@ namespace DevTrkrReports
 
             for (int i = 0; i < lbApplications.SelectedItems.Count; i++)
             {
-                var app = AppList.Find(x => x.AppFriendlyName == lbProjects.SelectedItems[i].ToString());
+                var app = AppList.Find(x => x.AppFriendlyName == lvProjects.SelectedItems[i].ToString());
                 if (app != null)
                     app.Selected = true;
             }
@@ -262,25 +364,27 @@ namespace DevTrkrReports
             if (string.IsNullOrWhiteSpace(cbReportType.Text))
                 msg = "Please select a Report Type." + Environment.NewLine;
 
-            if (lbProjects.SelectedItems.Count.Equals(0) && cbReportType.Text.Equals("Project Report"))
+            if (cbReportType.Text.Equals("Project Detail") && lvProjects.SelectedItems.Count != 1)
+                msg += "You must select one and only one project for the Project Detail Report." + Environment.NewLine;
+            else if (lvProjects.SelectedItems.Count.Equals(0) && cbReportType.Text.StartsWith("Project"))
                 msg += "You must select one or more or All Projects." + Environment.NewLine;
 
             //if (lbApplications.SelectedItems.Count.Equals(0) && cbReportType.Text.Equals("Application Report"))
             //    msg += "You must select one or more or All Applications.";
 
             if (cbReportType.Text.Equals("User Detail") && lbDevelopers.SelectedItems.Count != 1)
-                msg += "The User Detail report can only be run for one user at a time.";
+                msg += "The User Detail report can only be run for one user at a time." + Environment.NewLine;
             else if (lbDevelopers.SelectedItems.Count.Equals(0))
-                msg += "You must select one or more or All developers.";
+                msg += "You must select one or more or All developers." + Environment.NewLine;
 
             if ((dtStart.Value >= dtEnd.Value) && chkUseDates.Checked)
-                msg += "End Date and Time must be greater than the Start Date and Time";
+                msg += "End Date and Time must be greater than the Start Date and Time" + Environment.NewLine;
 
             if (string.IsNullOrWhiteSpace(txtFilename.Text))
-                msg += "You must select an output file for your report.";
+                msg += "You must select an output file for your report." + Environment.NewLine;
             
             if (cbReportType.Text.Equals("Application Usage") && lbApplications.SelectedItems.Count.Equals(0))
-                msg += "For the Application Usage Report, you must select from the Applications List.";
+                msg += "For the Application Usage Report, you must select from the Applications List." + Environment.NewLine;
            
             if (!string.IsNullOrWhiteSpace(msg))
             {
@@ -303,14 +407,6 @@ namespace DevTrkrReports
             }
         }
 
-        private string EnumerateSelections(ListBox lb)
-        {
-            var pipe = "|"; 
-            var s = string.Empty;
-            foreach (var li in lb.SelectedItems)
-                s += string.IsNullOrWhiteSpace(s) ? li.ToString() : pipe + li.ToString();
-            return s;
-        }
 
         private void btnOpenReport_Click(object sender, EventArgs e)
         {
@@ -332,14 +428,23 @@ namespace DevTrkrReports
             }
         }
 
-        private bool RollupReferencedLibraries { get; set; }
-        private void mnuRollupReferencedLibraries_Click(object sender, EventArgs e)
-        {
-            //mnuRollupReferencedLibraries.Checked = !
-        }
+        //private bool RollupReferencedLibraries { get; set; }
+        //private void mnuRollupReferencedLibraries_Click(object sender, EventArgs e)
+        //{
+        //    //mnuRollupReferencedLibraries.Checked = !
+        //}
 
         private void cbReportType_SelectedIndexChanged(object sender, EventArgs e)
         {
+            switch (cbReportType.Text)
+            {
+                case "Project Detail":
+                    lvProjects.MultiSelect = false;
+                    break;
+                default:
+                    lvProjects.MultiSelect = true;
+                    break;
+            }
            //switch (cbReportType.Text)
            // {
            //     case "Developer Detail":
@@ -357,6 +462,33 @@ namespace DevTrkrReports
         }
 
         private void frmReporter_FormClosing(object sender, FormClosingEventArgs e)
+        {
+
+        }
+
+        private void projectsCheckAll_Click(object sender, EventArgs e)
+        {
+            CheckUncheckAllProjects(true);
+        }
+
+        private void projectsUncheckAll_Click(object sender, EventArgs e)
+        {
+            CheckUncheckAllProjects(false);
+        }
+
+        private void CheckUncheckAllProjects(bool check)
+        {
+            for (int i = 0; i < lvProjects.Items.Count; i++)
+            {
+                ListViewItem lvi = lvProjects.Items[i];
+                lvi.Selected = check;
+                ProjList.Projects[i].Selected = check;
+            }
+        }
+
+        bool busy = false;
+
+        private void lvProjects_SelectedIndexChanged(object sender, EventArgs e)
         {
 
         }

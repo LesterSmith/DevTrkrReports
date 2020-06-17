@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
 using System.Drawing;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using OfficeOpenXml;
 using BusinessObjects;
 namespace DevTrkrReports
@@ -39,7 +35,7 @@ namespace DevTrkrReports
         #endregion // public and private members
 
         #region public methods
-        protected internal string GetPrjPath(string value, List<DevProjPath> projects)
+        protected internal string GetPrjPath(string value, List<ReportProjects> projects)
         {
             var prj = projects.Find(x => x.DevProjectName == value);
             return prj != null ? prj.DevProjectPath : "Unknown";
@@ -53,7 +49,7 @@ namespace DevTrkrReports
             return "and (starttime >= '" + (!dateOnly ? startTime.Value.Date.ToString("MM/dd/yyyy HH:mm:ss") : startTime.Value.Date.ToString("MM/dd/yyyy")) + "' and endtime <= '" + (!dateOnly ? endTime.Value.Date.ToString("MM/dd/yyyy HH:mm:ss") : endTime.Value.Date.ToString("MM/dd/yyyy")) + "') ";
         }
 
-        protected internal string GetListSQL(List<DevProjPath> projects, string field)
+        protected internal string GetListSQL(List<ReportProjects> projects, string field)
         {
             const string comma = ",";
             bool first = true;
@@ -73,7 +69,26 @@ namespace DevTrkrReports
             sql += ") ";
             return sql;
         }
-        //TODO this method does not line up with the frmReporter nothing is selected in the incoming list
+
+        protected internal string GetListSQL(List<ProjectNameAndSync> projects)
+        {
+            const string comma = ",";
+            bool first = true;
+            const string singQte = "'";
+            var sql = $"and SyncID in (";
+            for (int i = 0; i < projects.Count; i++)
+            {
+                //if (projects[i].Selected || allProjects)
+                //{
+                    sql += first ? singQte + projects[i].SyncID + singQte : comma + singQte + projects[i].SyncID + singQte;
+                    first = false;
+                //}
+            }
+            sql += ") ";
+            return sql;
+        }
+
+
         /// <summary>
         /// 
         /// </summary>

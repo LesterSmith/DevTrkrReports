@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using BusinessObjects;
 using OfficeOpenXml;
 using System.IO;
@@ -10,12 +7,13 @@ using DataHelpers;
 using System.Windows.Forms;
 using System.Data;
 using System.Diagnostics;
+using AppWrapper;
 namespace DevTrkrReports
 {
     public class ProjectReportByUser : Reporter
     {
 
-        public bool Process(List<DevProjPath> projects, List<DeveloperNames> developers) //, DateTime startTime, DateTime endTime)
+        public bool Process(List<ReportProjects> projects, List<DeveloperNames> developers) //, DateTime startTime, DateTime endTime)
         {
             try
             {
@@ -33,7 +31,7 @@ namespace DevTrkrReports
             }
         }
 
-        private void PopulateSheet(List<DevProjPath> projects, List<DeveloperNames> developers, DateTime? startTime, DateTime? endTime)
+        private void PopulateSheet(List<ReportProjects> projects, List<DeveloperNames> developers, DateTime? startTime, DateTime? endTime)
         {
             try
             {
@@ -99,9 +97,7 @@ namespace DevTrkrReports
                         subHrs = subMins = subSecs = 0; // reset ctrs for next user
                     }
 
-                    // mow deal with current row data
-                    if (dr["Project Name"].GetNotDBNull() == "LineCount")
-                        Debug.WriteLine("stop");
+                    // now deal with current row data
                     ws.Cells[rowId, 1].Value = dr["Project Name"].GetNotDBNull();
                     ws.Cells[rowId, 2].Value = thisRowHours;
                     ws.Cells[rowId, 3].Value = thisRowMins;
@@ -157,17 +153,16 @@ namespace DevTrkrReports
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.Message);
+                Util.LogError(ex, true);
             }
         }
 
-        //TODO group by username
         /// <summary>
         /// 
         /// Dynamic SQL either has to be built here or in a stored procedure.
         /// It is easier here and just as safe b/c there are no parameters.
         /// </summary>
-        private string CreateSQL(List<DevProjPath> projects, List<DeveloperNames> developers, DateTime? startTime, DateTime? endTime)
+        private string CreateSQL(List<ReportProjects> projects, List<DeveloperNames> developers, DateTime? startTime, DateTime? endTime)
         {
             string sql = 
             "SET NOCOUNT ON; " +

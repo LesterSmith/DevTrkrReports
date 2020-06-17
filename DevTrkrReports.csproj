@@ -63,7 +63,7 @@
     <Compile Include="frmReporter.Designer.cs">
       <DependentUpon>frmReporter.cs</DependentUpon>
     </Compile>
-    <Compile Include="GenericReportHelper.cs" />
+    <Compile Include="ProjectDetail.cs" />
     <Compile Include="ProjectReportByProject.cs" />
     <Compile Include="ProjectReportByUser.cs" />
     <Compile Include="Reporter.cs" />
@@ -86,6 +86,14 @@
     <ProjectReference Include="..\AppWrapper\AppWrapper.csproj">
       <Project>{d8d26b82-20a5-49a7-82ae-99923113f7d1}</Project>
       <Name>AppWrapper</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CodeCounter\CodeCounter.csproj">
+      <Project>{553318db-4f95-48aa-b004-b53912fd868f}</Project>
+      <Name>CodeCounter</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DevProjects\DevProjects.csproj">
+      <Project>{27f48f76-11be-4e53-a208-1081bcf546bf}</Project>
+      <Name>DevProjects</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

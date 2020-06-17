@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using BusinessObjects;
 using OfficeOpenXml;
 using System.IO;
 using DataHelpers;
 using System.Windows.Forms;
 using System.Data;
-using System.Diagnostics;
 using AppWrapper;
 namespace DevTrkrReports
 {
@@ -26,7 +22,7 @@ namespace DevTrkrReports
     /// </summary>
     public class UserReport : Reporter
     {
-        public bool Process(List<DevProjPath> projects, List<DeveloperNames> developers)
+        public bool Process(List<ReportProjects> projects, List<DeveloperNames> developers)
         {
             try
             {
@@ -43,7 +39,7 @@ namespace DevTrkrReports
                 return false;
             }
         }
-        private void PopulateSheet(List<DevProjPath> projects, List<DeveloperNames> developers) //, DateTime? startTime, DateTime? endTime)
+        private void PopulateSheet(List<ReportProjects> projects, List<DeveloperNames> developers) //, DateTime? startTime, DateTime? endTime)
         {
             try
             {
@@ -163,7 +159,7 @@ namespace DevTrkrReports
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.Message);
+                Util.LogError(ex,true);
             }
         }
 
@@ -174,7 +170,7 @@ namespace DevTrkrReports
             var recur = dr["Recurring"].GetNotDBNullBool() ? "Yes" : "No";
             return $"Meeting Organized By: {dr["Organizer"].GetNotDBNull()} Recurring: {recur}";
         }
-        private string CreateSQL(List<DevProjPath> projects, List<DeveloperNames> developers, DateTime? startTime, DateTime? endTime)
+        private string CreateSQL(List<ReportProjects> projects, List<DeveloperNames> developers, DateTime? startTime, DateTime? endTime)
         {
             var hlpr = new DHWindowEvents(string.Empty);
             string userName = developers[0].UserName;
