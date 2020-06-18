@@ -432,7 +432,7 @@
             this.MinimizeBox = false;
             this.Name = "frmReporter";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "DevTrkr Reporting";
+            this.Text = "DevTracker Reporting";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmReporter_FormClosing);
             this.Load += new System.EventHandler(this.frmReporter_Load);
             this.tabControl1.ResumeLayout(false);
