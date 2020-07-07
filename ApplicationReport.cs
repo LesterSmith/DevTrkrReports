@@ -43,7 +43,7 @@ namespace DevTrkrReports
             {
                 rowId = i + 3;
                 ws.Cells[rowId, 1].Value = dt.Rows[i]["Application Name"].GetNotDBNull();
-                ws.Cells[rowId, 2].Value = dt.Rows[i]["Hours"].GetNotDBNullInt();
+                WriteNumberCell(ws, rowId, 2, dt.Rows[i]["Hours"].GetNotDBNullInt());
                 ws.Cells[rowId, 3].Value = dt.Rows[i]["Minutes"].GetNotDBNullInt();
                 ws.Cells[rowId, 4].Value = dt.Rows[i]["Seconds"].GetNotDBNullInt();
                 ws.Cells[rowId, 5].Value = dt.Rows[i]["UserDisplayName"];
@@ -53,7 +53,7 @@ namespace DevTrkrReports
             if (ds.Tables[1].Rows.Count > 0)
             {
                 ws.Cells[rowId + 2, 1].Value = ds.Tables[1].Rows[0]["Total"].GetNotDBNull();
-                ws.Cells[rowId + 2, 2].Value = ds.Tables[1].Rows[0]["Hours"].GetNotDBNullInt();
+                WriteNumberCell(ws, rowId + 2, 2, ds.Tables[1].Rows[0]["Hours"].GetNotDBNullInt());
                 ws.Cells[rowId + 2, 3].Value = ds.Tables[1].Rows[0]["Minutes"].GetNotDBNullInt();
                 ws.Cells[rowId + 2, 4].Value = ds.Tables[1].Rows[0]["Seconds"].GetNotDBNullInt();
             }

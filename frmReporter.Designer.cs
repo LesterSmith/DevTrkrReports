@@ -62,6 +62,7 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.projectsContextMenu.SuspendLayout();
@@ -125,6 +126,7 @@
             this.lvProjects.Name = "lvProjects";
             this.lvProjects.Size = new System.Drawing.Size(818, 275);
             this.lvProjects.TabIndex = 21;
+            this.toolTip1.SetToolTip(this.lvProjects, "Selecting a solution will automatically pull in all projects in the solution");
             this.lvProjects.UseCompatibleStateImageBehavior = false;
             this.lvProjects.View = System.Windows.Forms.View.Details;
             this.lvProjects.SelectedIndexChanged += new System.EventHandler(this.lvProjects_SelectedIndexChanged);
@@ -389,7 +391,7 @@
             this.cbReportType.Location = new System.Drawing.Point(132, 28);
             this.cbReportType.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.cbReportType.Name = "cbReportType";
-            this.cbReportType.Size = new System.Drawing.Size(288, 33);
+            this.cbReportType.Size = new System.Drawing.Size(381, 33);
             this.cbReportType.TabIndex = 0;
             this.cbReportType.SelectedIndexChanged += new System.EventHandler(this.cbReportType_SelectedIndexChanged);
             // 
@@ -480,5 +482,6 @@
         private System.Windows.Forms.ToolStripMenuItem projectsCheckAll;
         private System.Windows.Forms.ToolStripMenuItem projectsUncheckAll;
         private System.Windows.Forms.ColumnHeader Developer;
+        private System.Windows.Forms.ToolTip toolTip1;
     }
 }

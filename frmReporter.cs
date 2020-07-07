@@ -8,10 +8,12 @@ using System.Diagnostics;
 using AppWrapper;
 using CodeCounter;
 using DevProjects;
+using DevTrackerLogging;
 namespace DevTrkrReports
 {
     public partial class frmReporter : Form
     {
+        //TODO: ***** convert the old reports to look for sln like projectdetail does
         private List<NotableApplication> AppList { get; set; }
         //private List<DevProjPath> ProjList { get; set; }
         private List<ProjectSync> SyncList { get; set; }
@@ -29,6 +31,7 @@ namespace DevTrkrReports
             // i think getting syncs is unneeded since devprojects has the syncid in it
             // and handling syncs and projects is over complicating this issue
             // SyncList = hlpr.GetProjectSyncs();
+            //TODO: look for ssms projects which are not .master
             ProjList = hlpr.GetProjectsForReporting();
             lvProjects.Items.Clear();
             string syncID = string.Empty;
@@ -61,215 +64,331 @@ namespace DevTrkrReports
 
         private void btnCreateReport_Click(object sender, EventArgs e)
         {
-            if (!ValidateReportParameters())
-                return;
-
-
-            var range = "A1:Z2";
-            string dv = chkUseDates.Checked ? $"from {dtStart.Value.Date.ToString("MM/dd/yyyy")} to { dtEnd.Value.Date.ToString("MM/dd/yyyy")}" : string.Empty;
-            switch (cbReportType.SelectedItem.ToString())
+            try
             {
-                case "Project Summary by User":
-                   // MarkSelectedProjects();
-                    List<ColHdr> cols = new List<ColHdr>();
-                    cols.Add(new ColHdr { Header = "Project Name", Width = 40 });
-                    cols.Add(new ColHdr { Header = "Hours", Width = 10 });
-                    cols.Add(new ColHdr { Header = "Minutes", Width = 12 });
-                    cols.Add(new ColHdr { Header = "Seconds", Width = 12 });
-                    cols.Add(new ColHdr { Header = "Developer", Width = 20 });
-                    cols.Add(new ColHdr { Header = "Project Path", Width = 50 });
-                    
-                    var prHdr = new ReportHdr 
-                                            { HdrRange = range, 
-                                              Hdrs = cols, 
-                                              Title = $"Project Time Report by User {dv}", 
-                                              TitleCell = "A1" 
-                                            };
-                    ProjectReportByUser pr = (ProjectReportByUser) ReportFactory.Factory(
-                        new ReporterParms 
+                if (!ValidateReportParameters())
+                    return;
+
+                List<ProjectNameAndSync> allProjsList = new List<ProjectNameAndSync>();
+
+                var range = "A1:Z2";
+                string dv = chkUseDates.Checked ? $"from {dtStart.Value.Date.ToString("MM/dd/yyyy")} to { dtEnd.Value.Date.ToString("MM/dd/yyyy")}" : string.Empty;
+                switch (cbReportType.SelectedItem.ToString())
+                {
+                    case "Project Summary by User":
+                        SelectProjects();
+                        List<ColHdr> cols = new List<ColHdr>();
+                        cols.Add(new ColHdr { Header = "Project Name", Width = 40 });
+                        cols.Add(new ColHdr { Header = "Hours", Width = 10 });
+                        cols.Add(new ColHdr { Header = "Minutes", Width = 12 });
+                        cols.Add(new ColHdr { Header = "Seconds", Width = 12 });
+                        cols.Add(new ColHdr { Header = "Developer", Width = 20 });
+                        //cols.Add(new ColHdr { Header = "Project Path", Width = 50 });
+
+                        var prHdr = new ReportHdr
                         {
-                            Header = prHdr,   
-                            FileName = txtFilename.Text, 
-                            Type = ReportType.ProjectSummaryByUser, 
-                            StartTime = chkUseDates.Checked ? dtStart.Value : (DateTime?)null, 
-                            EndTime = chkUseDates.Checked ? dtEnd.Value : (DateTime?)null 
-                        });
-                    List<DeveloperNames> developers = GetDevelopers(lbDevelopers);
+                            HdrRange = range,
+                            Hdrs = cols,
+                            Title = $"Project Time Report by User {dv}",
+                            TitleCell = "A1"
+                        };
 
-                    if (pr.Process(ProjList.Projects, developers)) //, dtStart.Value, dtEnd.Value))
-                    {
-                        ReportCompleteMessage();
-                    }
-                    else
-                    {
-                        ReportErrorMessage();
-                    }
-                    pr.Dispose();
-                    break;
-                case "Project Summary by Project":
-                    //MarkSelectedProjects();
-                    List<ColHdr> colsPP = new List<ColHdr>();
-                    colsPP.Add(new ColHdr { Header = "Project Name", Width = 40 });
-                    colsPP.Add(new ColHdr { Header = "Hours", Width = 10 });
-                    colsPP.Add(new ColHdr { Header = "Minutes", Width = 12 });
-                    colsPP.Add(new ColHdr { Header = "Seconds", Width = 12 });
-                    colsPP.Add(new ColHdr { Header = "Developer", Width = 20 });
-                    colsPP.Add(new ColHdr { Header = "Project Path", Width = 50 });
-                    
-                    var ppHdr = new ReportHdr
-                    {
-                        HdrRange = range,
-                        Hdrs = colsPP,
-                        Title = $"Project Time Report by Project {dv}",
-                        TitleCell = "A1"
-                    };
-                    ProjectReportByProject prp = (ProjectReportByProject)ReportFactory.Factory(
-                        new ReporterParms
-                        {
-                            Header = ppHdr,
-                            FileName = txtFilename.Text,
-                            Type = ReportType.ProjectSummaryByProject,
-                            StartTime = chkUseDates.Checked ? dtStart.Value : (DateTime?)null,
-                            EndTime = chkUseDates.Checked ? dtEnd.Value : (DateTime?)null
-                        });
-                    List<DeveloperNames> devs = GetDevelopers(lbDevelopers);
-
-                    if (prp.Process(ProjList.Projects, devs)) //, dtStart.Value, dtEnd.Value))
-                    {
-                        ReportCompleteMessage();
-                    }
-                    else
-                    {
-                        ReportErrorMessage();
-                    }
-                    prp.Dispose();
-                    break;
-                case "Application Usage":
-                    MarkSelectedApps();
-                    List<ColHdr> colsAU = new List<ColHdr>();
-                    colsAU.Add(new ColHdr { Header = "Application", Width = 40 });
-                    colsAU.Add(new ColHdr { Header = "Hours", Width = 10 });
-                    colsAU.Add(new ColHdr { Header = "Minutes", Width = 12 });
-                    colsAU.Add(new ColHdr { Header = "Seconds", Width = 12 });
-                    colsAU.Add(new ColHdr { Header = "Developer", Width = 20 });
-                    var arHdr = new ReportHdr { HdrRange = range, Hdrs = colsAU, Title = $"Application Usage Report {dv}", TitleCell = "A1" };
-                    ApplicationReport ar = (ApplicationReport)ReportFactory.Factory(new ReporterParms { Header = arHdr, FileName = txtFilename.Text, Type = ReportType.ApplicationUsage, StartTime = chkUseDates.Checked ? dtStart.Value : (DateTime?)null, EndTime = chkUseDates.Checked ? dtEnd.Value : (DateTime?)null });
-                    List<DeveloperNames> users = GetDevelopers(lbDevelopers);
-
-                    if (ar.Process(AppList, users)) //, dtStart.Value, dtEnd.Value))
-                    {
-                        ReportCompleteMessage();
-                    }
-                    else
-                    {
-                        ReportErrorMessage();
-                    }
-                    ar.Dispose();
-                    break;
-                case "Developer Detail":
-                    //MarkSelectedProjects();
-                    List<ColHdr> colsUR = new List<ColHdr>();
-                    colsUR.Add(new ColHdr { Header = "Project Name", Width = 40 });
-                    colsUR.Add(new ColHdr { Header = "Hours", Width = 10 });
-                    colsUR.Add(new ColHdr { Header = "Minutes", Width = 12 });
-                    colsUR.Add(new ColHdr { Header = "Seconds", Width = 12 });
-                    colsUR.Add(new ColHdr { Header = "Developer", Width = 20 });
-                    colsUR.Add(new ColHdr { Header = "Activity", Width = 70 });
-                    //string dv = chkUseDates.Checked ? $"from { dtStart.Value.Date.ToString("MM/dd/yyyy")} to { dtEnd.Value.Date.ToString("MM/dd/yyyy")}" : string.Empty; 
-                    var urHdr = new ReportHdr { HdrRange = range, Hdrs = colsUR, Title = $"Developer Detail {dv})" , TitleCell = "A1" };
-                    UserReport ur = (UserReport)ReportFactory.Factory(new ReporterParms { Header = urHdr, FileName = txtFilename.Text, Type = ReportType.DeveloperDetail, StartTime = chkUseDates.Checked ? dtStart.Value.Date : (DateTime?)null, EndTime = chkUseDates.Checked ? dtEnd.Value.Date : (DateTime?)null }); 
-                    List<DeveloperNames> developer = GetDevelopers(lbDevelopers);
-                    if (ur.Process(ProjList.Projects, developer))
-                    {
-                        btnOpenReport.Enabled = true;
-                        MessageBox.Show("Your report is created, click Open Report Button to view in Excel.", "Report Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        btnCreateReport.Enabled = false;
-                    }
-                    ur.Dispose();
-                    break;
-                case "Project Detail":
-                    List<ColHdr> colsPD = new List<ColHdr>();
-                    colsPD.Add(new ColHdr { Header = "Project Name", Width = 40 });
-                    colsPD.Add(new ColHdr { Header = "Hours", Width = 10 });
-                    colsPD.Add(new ColHdr { Header = "Minutes", Width = 12 });
-                    colsPD.Add(new ColHdr { Header = "Seconds", Width = 12 });
-                    colsPD.Add(new ColHdr { Header = "Developer", Width = 20 });
-                    
-                    var pdHdr = new ReportHdr
-                    {
-                        HdrRange = range,
-                        Hdrs = colsPD,
-                        Title = $"Project Detail Report for Solution {ProjList.Projects[lvProjects.SelectedItems[0].Index].DevProjectName} Collaborating Developers: {ProjList.Projects[lvProjects.SelectedItems[0].Index].DevProjectCount}",
-                        TitleCell = "A1"
-                    };
-                    ProjectDetail pd = (ProjectDetail)ReportFactory.Factory(
-                                new ReporterParms
-                                {
-                                    Header = pdHdr,
-                                    FileName = txtFilename.Text,
-                                    Type = ReportType.ProjectDetail,
-                                    StartTime = chkUseDates.Checked ? dtStart.Value : (DateTime?)null,
-                                    EndTime = chkUseDates.Checked ? dtEnd.Value : (DateTime?)null
-                                });
-                    List<DeveloperNames> devlprs = GetDevelopers(lbDevelopers);
-
-                    // here we need to know if the selected project has a sln file
-                    // if it does we need the list of projects from it to replace
-                    // the projlist.projects or something like it
-                    int ptr = lvProjects.SelectedItems[0].Index;
-                    var slnPath = ProjList.Projects[ptr].DevSLNPath;
-                    List<ProjectNameAndSync> pList;
-                    if (!string.IsNullOrWhiteSpace(slnPath))
-                    {
-                        // the path may have/not have the filename in it, ensure it there
-                        if (Path.GetFileName(slnPath).ToLower().IndexOf(".sln") == -1)
-                            slnPath = Path.Combine(slnPath, $"{Path.GetFileNameWithoutExtension(slnPath)}.sln");
-                        ProcessSolution ps = new ProcessSolution(slnPath, false);
-                        // following line only gets the project fullPath in the PNAS objects
-                        pList = ps.ProjectList;
-                        // we still need the syncID for the project and ProcessSolution
-                        // could not get that for us
-                        if (pList.Count > 1)
-                        {
-                            // the sln had multiple projects, we need a syncID for each
-                            var mp = new MaintainProject();
-                            foreach (var p in pList)
+                        ProjectReportByUser pr = (ProjectReportByUser)ReportFactory.Factory(
+                            new ReporterParms
                             {
-                                string url = mp.GetGitURLFromPath(p.Name);
-                                var o = ProjList.Projects.Find(x => x.GitURL == url && x.DevProjectName == Path.GetFileNameWithoutExtension(p.Name));
-                                if (o != null)
-                                    p.SyncID = o.SyncID;
-                                else
-                                {
-                                    MessageBox.Show($"Could not find a SyncID for {Path.GetFileNameWithoutExtension(p.Name)}, report can't be run.", "Processing Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                    return;
-                                }
-                            }
+                                Header = prHdr,
+                                FileName = txtFilename.Text,
+                                Type = ReportType.ProjectSummaryByUser,
+                                StartTime = chkUseDates.Checked ? dtStart.Value : (DateTime?)null,
+                                EndTime = chkUseDates.Checked ? dtEnd.Value : (DateTime?)null
+                            });
+
+                        List<DeveloperNames> developers = GetDevelopers(lbDevelopers);
+
+                        GetSolutionProjects(ref allProjsList);
+
+                        if (pr.Process(allProjsList, developers)) 
+                        {
+                            ReportCompleteMessage();
+                        }
+                        else
+                        {
+                            ReportErrorMessage();
+                        }
+                        pr.Dispose();
+                        break;
+                    case "Project Summary by Project":
+                        SelectProjects();
+                        List<ColHdr> colsPP = new List<ColHdr>();
+                        colsPP.Add(new ColHdr { Header = "Project Name", Width = 40 });
+                        colsPP.Add(new ColHdr { Header = "Hours", Width = 10 });
+                        colsPP.Add(new ColHdr { Header = "Minutes", Width = 12 });
+                        colsPP.Add(new ColHdr { Header = "Seconds", Width = 12 });
+                        colsPP.Add(new ColHdr { Header = "Developer", Width = 20 });
+                        //colsPP.Add(new ColHdr { Header = "Project Path", Width = 50 });
+
+                        var ppHdr = new ReportHdr
+                        {
+                            HdrRange = range,
+                            Hdrs = colsPP,
+                            Title = $"Project Time Report by Project {dv}",
+                            TitleCell = "A1"
+                        };
+
+                        ProjectReportByProject prp = (ProjectReportByProject)ReportFactory.Factory(
+                            new ReporterParms
+                            {
+                                Header = ppHdr,
+                                FileName = txtFilename.Text,
+                                Type = ReportType.ProjectSummaryByProject,
+                                StartTime = chkUseDates.Checked ? dtStart.Value : (DateTime?)null,
+                                EndTime = chkUseDates.Checked ? dtEnd.Value : (DateTime?)null
+                            });
+
+                        List<DeveloperNames> devs = GetDevelopers(lbDevelopers);
+
+                        GetSolutionProjects(ref allProjsList);
+
+                        if (prp.Process(allProjsList, devs)) //, dtStart.Value, dtEnd.Value))
+                        {
+                            ReportCompleteMessage();
+                        }
+                        else
+                        {
+                            ReportErrorMessage();
+                        }
+                        prp.Dispose();
+                        break;
+                    case "Application Usage":
+                        MarkSelectedApps();
+                        List<ColHdr> colsAU = new List<ColHdr>();
+                        colsAU.Add(new ColHdr { Header = "Application", Width = 40 });
+                        colsAU.Add(new ColHdr { Header = "Hours", Width = 10 });
+                        colsAU.Add(new ColHdr { Header = "Minutes", Width = 12 });
+                        colsAU.Add(new ColHdr { Header = "Seconds", Width = 12 });
+                        colsAU.Add(new ColHdr { Header = "Developer", Width = 20 });
+                        var arHdr = new ReportHdr { HdrRange = range, Hdrs = colsAU, Title = $"Application Usage Report {dv}", TitleCell = "A1" };
+                        ApplicationReport ar = (ApplicationReport)ReportFactory.Factory(new ReporterParms { Header = arHdr, FileName = txtFilename.Text, Type = ReportType.ApplicationUsage, StartTime = chkUseDates.Checked ? dtStart.Value : (DateTime?)null, EndTime = chkUseDates.Checked ? dtEnd.Value : (DateTime?)null });
+                        List<DeveloperNames> users = GetDevelopers(lbDevelopers);
+
+                        if (ar.Process(AppList, users)) //, dtStart.Value, dtEnd.Value))
+                        {
+                            ReportCompleteMessage();
+                        }
+                        else
+                        {
+                            ReportErrorMessage();
+                        }
+                        ar.Dispose();
+                        break;
+                    case "Developer Detail":
+                        SelectProjects();
+                        List<ColHdr> colsUR = new List<ColHdr>();
+                        colsUR.Add(new ColHdr { Header = "Project Name", Width = 40 });
+                        colsUR.Add(new ColHdr { Header = "Hours", Width = 10 });
+                        colsUR.Add(new ColHdr { Header = "Minutes", Width = 12 });
+                        colsUR.Add(new ColHdr { Header = "Seconds", Width = 12 });
+                        colsUR.Add(new ColHdr { Header = "Developer", Width = 20 });
+                        colsUR.Add(new ColHdr { Header = "Activity", Width = 70 });
+                        //string dv = chkUseDates.Checked ? $"from { dtStart.Value.Date.ToString("MM/dd/yyyy")} to { dtEnd.Value.Date.ToString("MM/dd/yyyy")}" : string.Empty; 
+                        var urHdr = new ReportHdr { HdrRange = range, Hdrs = colsUR, Title = $"Developer Detail {dv}", TitleCell = "A1" };
+                        UserReport ur = (UserReport)ReportFactory.Factory(new ReporterParms { Header = urHdr, FileName = txtFilename.Text, Type = ReportType.DeveloperDetail, StartTime = chkUseDates.Checked ? dtStart.Value.Date : (DateTime?)null, EndTime = chkUseDates.Checked ? dtEnd.Value.Date : (DateTime?)null });
+                        List<DeveloperNames> developer = GetDevelopers(lbDevelopers);
+                        GetSolutionProjects(ref allProjsList);
+                        if (ur.Process(allProjsList, developer))
+                        {
+                            btnOpenReport.Enabled = true;
+                            MessageBox.Show("Your report is created, click Open Report Button to view in Excel.", "Report Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            btnCreateReport.Enabled = false;
+                        }
+                        ur.Dispose();
+                        break;
+                    case "Project Detail":
+                        SelectProjects();
+                        List<ColHdr> colsPD = new List<ColHdr>();
+                        colsPD.Add(new ColHdr { Header = "Project Name", Width = 40 });
+                        colsPD.Add(new ColHdr { Header = "Hours", Width = 10 });
+                        colsPD.Add(new ColHdr { Header = "Minutes", Width = 12 });
+                        colsPD.Add(new ColHdr { Header = "Seconds", Width = 12 });
+                        colsPD.Add(new ColHdr { Header = "Developer", Width = 20 });
+                        colsPD.Add(new ColHdr { Header = "App Name", Width = 20 });
+
+                        string rptNameProject = string.Empty;
+                        foreach (var p in ProjList.Projects)
+                        {
+                            if (p.DatabaseProject || !p.Selected) continue;
+                            rptNameProject = p.DevProjectName;
+                            break;
+                        }
+
+                        var pdHdr = new ReportHdr
+                        {
+                            HdrRange = range,
+                            Hdrs = colsPD,
+                            Title = $"Project Detail Report for Project/Solution {rptNameProject}", // {ProjList.Projects[lvProjects.SelectedItems[0].Index].DevProjectName}", // Collaborating Developers: {ProjList.Projects[lvProjects.SelectedItems[0].Index].DevProjectCount}",
+                            TitleCell = "A1"
+                        };
+
+                        ProjectDetail pd = (ProjectDetail)ReportFactory.Factory(
+                                    new ReporterParms
+                                    {
+                                        Header = pdHdr,
+                                        FileName = txtFilename.Text,
+                                        Type = ReportType.ProjectDetail,
+                                        StartTime = chkUseDates.Checked ? dtStart.Value : (DateTime?)null,
+                                        EndTime = chkUseDates.Checked ? dtEnd.Value : (DateTime?)null
+                                    });
+
+                        List<DeveloperNames> devlprs = GetDevelopers(lbDevelopers);
+
+                        GetSolutionProjects(ref allProjsList);
+
+                        #region refactored to own method
+                        // here we need to know if the selected project has a sln file
+                        // if it does we need the list of projects from it to replace
+                        // the projlist.projects or something like it
+                        // we create a List<ProjectNameAndSync> from ProjList and pass it 
+                        // instead of ProjList.Projects to the reports
+                        //int ptr = lvProjects.SelectedItems[0].Index;
+                        //var slnPath = ProjList.Projects[ptr].DevSLNPath;
+                        //List<ProjectNameAndSync> pList; 
+                        //if (!string.IsNullOrWhiteSpace(slnPath))
+                        //{
+                        //    // the path may have/not have the filename in it, ensure it there
+                        //    if (Path.GetFileName(slnPath).ToLower().IndexOf(".sln") == -1)
+                        //        slnPath = Path.Combine(slnPath, $"{Path.GetFileNameWithoutExtension(slnPath)}.sln");
+
+                        //    ProcessSolution ps = new ProcessSolution(slnPath, false);
+
+                        //    // following line only gets the project fullPath in the PNAS objects
+                        //    pList = ps.ProjectList;
+                        //    // we still need the syncID for the project and ProcessSolution
+                        //    // could not get that for us
+                        //    if (pList.Count > 1)
+                        //    {
+                        //        // the sln had multiple projects, we need a syncID for each
+                        //        var mp = new MaintainProject();
+                        //        foreach (var p in pList)
+                        //        {
+                        //            string url = mp.GetGitURLFromPath(p.Name);
+                        //            var o = ProjList.Projects.Find(x => x.GitURL == url && x.DevProjectName == Path.GetFileNameWithoutExtension(p.Name));
+                        //            if (o != null)
+                        //                p.SyncID = o.SyncID;
+                        //            else
+                        //            {
+                        //                // missing a sync record for project, DevProjects table has bad project entry
+                        //                new LogError($"Could not find a SyncID for {Path.GetFileNameWithoutExtension(p.Name)}, report can't be run.", true, "frmReporter.btnCreateReport_Click(ProjectDetail");
+                        //                return;
+                        //            }
+                        //        }
+                        //    }
+                        //}
+                        //else
+                        //{
+                        //    pList = new List<ProjectNameAndSync>();
+                        //    // no solution file, just the selected project will be used
+                        //    pList.Add(
+                        //            new ProjectNameAndSync
+                        //            {
+                        //                Name = ProjList.Projects[ptr].DevProjectName,
+                        //                SyncID = ProjList.Projects[ptr].SyncID
+                        //            });
+                        //}
+                        #endregion
+
+                        if (pd.Process(allProjsList, devlprs))
+                        {
+                            ReportCompleteMessage();
+                        }
+                        else
+                        {
+                            ReportErrorMessage();
+                        }
+                        pd.Dispose();
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                _ = new LogError(ex, true, "frmReporter.btnCreateReport_Click");
+            }
+        }
+
+        private void GetSolutionProjects(ref List<ProjectNameAndSync> allProjsList)
+        {
+            for (var i = 0; i < ProjList.Projects.Count; i++)
+            {
+                if (ProjList.Projects[i].Selected)
+                {
+                    List<ProjectNameAndSync> projs = GetProjectsForSolutionIfExtant(i);
+                    foreach (ProjectNameAndSync pns in projs)
+                    {
+                        if (!string.IsNullOrWhiteSpace(pns.SyncID))
+                            allProjsList.Add(pns);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// here we need to know if the selected project has a sln file
+        /// if it does we need the list of projects from it to replace
+        /// the projlist.projects or something like it
+        /// </summary>
+        /// <param name="pList"></param>
+        /// <param name="projPtr"></param>
+        /// <returns></returns>
+        private List<ProjectNameAndSync> GetProjectsForSolutionIfExtant(int projPtr)
+        {
+            //int ptr = lvProjects.SelectedItems[projPtr].Index;
+            var slnPath = ProjList.Projects[projPtr].DevSLNPath;
+            List<ProjectNameAndSync> pList = new List<ProjectNameAndSync>();
+
+            if (!string.IsNullOrWhiteSpace(slnPath))
+            {
+                // the path may have/not have the filename in it, ensure it there
+                if (Path.GetFileName(slnPath).ToLower().IndexOf(".sln") == -1)
+                    slnPath = Path.Combine(slnPath, $"{Path.GetFileNameWithoutExtension(slnPath)}.sln");
+
+                ProcessSolution ps = new ProcessSolution(slnPath, false);
+
+                // following line only gets the project fullPath in the PNAS objects
+                pList = ps.ProjectList;
+                // we still need the syncID for the project and ProcessSolution
+                // could not get that for us
+                if (pList.Count > 0)
+                {
+                    // the sln had projects, we need a syncID for each
+                    var mp = new MaintainProject();
+                    foreach (var p in pList)
+                    {
+                        string url = mp.GetGitURLFromPath(p.Name);
+                        // if a project is not in gitHub the url will be blank
+                        if (string.IsNullOrWhiteSpace(url))
+                            url = Path.GetFileNameWithoutExtension(p.Name);
+
+                        var o = ProjList.Projects.Find(x => x.GitURL == url && x.DevProjectName == Path.GetFileNameWithoutExtension(p.Name));
+                        if (o != null)
+                            p.SyncID = o.SyncID;
+                        else
+                        {
+                            // missing a sync record for project, DevProjects table has bad project entry
+                            _ = new LogError($"Could not find a SyncID for '{p.Name}', Invalid Project Data in DevProjects Table, project will not be in report.", true, "frmReporter.btnCreateReport_Click(ProjectDetail");
                         }
                     }
-                    else
-                    {
-                        pList = new List<ProjectNameAndSync>();
-                        // no solution file, just the selected project will be used
-                        pList.Add(
-                                new ProjectNameAndSync 
-                                { 
-                                    Name = ProjList.Projects[ptr].DevProjectName, 
-                                    SyncID = ProjList.Projects[ptr].SyncID 
-                                });
-                    }
-
-                    if (pd.Process(pList, devlprs))  
-                    {
-                        ReportCompleteMessage();
-                    }
-                    else
-                    {
-                        ReportErrorMessage();
-                    }
-                    pd.Dispose();
-                    break;
+                }
             }
+            else
+            {
+                // no solution file, just the selected project will be used
+                pList.Add(
+                        new ProjectNameAndSync
+                        {
+                            Name = ProjList.Projects[projPtr].DevProjectName,
+                            SyncID = ProjList.Projects[projPtr].SyncID
+                        });
+            }
+            return pList;
         }
 
         private void ReportCompleteMessage()
@@ -287,15 +406,6 @@ namespace DevTrkrReports
         {
             foreach (var p in SyncList)
                 p.Selected = false;
-
-            //if (lvProjects.CheckedItems.Count == 1 && lvProjects.CheckedIndices[0] == 0)
-            //{
-            //    foreach (var item in SyncList)
-            //    {
-            //        item.Selected = true;
-            //    }
-            //    return;
-            //}
 
             for (int i = 0; i < lvProjects.CheckedItems.Count; i++)
             {
@@ -364,13 +474,8 @@ namespace DevTrkrReports
             if (string.IsNullOrWhiteSpace(cbReportType.Text))
                 msg = "Please select a Report Type." + Environment.NewLine;
 
-            if (cbReportType.Text.Equals("Project Detail") && lvProjects.SelectedItems.Count != 1)
-                msg += "You must select one and only one project for the Project Detail Report." + Environment.NewLine;
-            else if (lvProjects.SelectedItems.Count.Equals(0) && cbReportType.Text.StartsWith("Project"))
-                msg += "You must select one or more or All Projects." + Environment.NewLine;
-
-            //if (lbApplications.SelectedItems.Count.Equals(0) && cbReportType.Text.Equals("Application Report"))
-            //    msg += "You must select one or more or All Applications.";
+            if (lvProjects.SelectedItems.Count.Equals(0) && cbReportType.Text.StartsWith("Project"))
+                msg += "You must select one or more Projects." + Environment.NewLine;
 
             if (cbReportType.Text.Equals("User Detail") && lbDevelopers.SelectedItems.Count != 1)
                 msg += "The User Detail report can only be run for one user at a time." + Environment.NewLine;
@@ -439,7 +544,7 @@ namespace DevTrkrReports
             switch (cbReportType.Text)
             {
                 case "Project Detail":
-                    lvProjects.MultiSelect = false;
+                    lvProjects.MultiSelect = true;
                     break;
                 default:
                     lvProjects.MultiSelect = true;
@@ -487,10 +592,29 @@ namespace DevTrkrReports
         }
 
         bool busy = false;
+        private void SelectProjects()
+        {
+            for (var i = 0; i < lvProjects.Items.Count; i++)
+            {
+                ProjList.Projects[i].Selected = lvProjects.Items[i].Selected;
+            }
+        }
 
         private void lvProjects_SelectedIndexChanged(object sender, EventArgs e)
         {
-
+            //try
+            //{
+            //    if (busy) return;
+            //    busy = true;
+            //    MessageBox.Show(lvProjects.SelectedItem.ToString());
+            //    ListViewItemSelectionChangedEventArgs e1 = (ListViewItemSelectionChangedEventArgs)e;
+            //    ProjList.Projects[e1.Item.Index].Selected = lvProjects.Items[e1.Item.Index].Selected;
+            //    busy = false;
+            //}
+            //catch (Exception ex)
+            //{
+            //    new LogError(ex, false, "frmReporter.lvProjects_SelectedIndexChanged");
+            //}
         }
     }
 }

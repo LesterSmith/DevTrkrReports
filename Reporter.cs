@@ -178,6 +178,25 @@ namespace DevTrkrReports
                 throw;
             }
         }
+        protected internal void WriteBoldCell(ExcelWorksheet ws, int rowId, int cell, string value)
+        {
+            ws.Cells[rowId, cell].Value = value;
+            ws.Cells[rowId, cell].Style.Numberformat.Format = "@";
+            ws.Cells[rowId, cell].Style.Font.Bold = true;
+        }
+
+        protected internal void WriteBoldNumberCell(ExcelWorksheet ws, int rowId, int cell, int value)
+        {
+            ws.Cells[rowId, cell].Value = value;
+            ws.Cells[rowId, cell].Style.Numberformat.Format = "#,##0";
+            ws.Cells[rowId, cell].Style.Font.Bold = true;
+        }
+
+        protected internal void WriteNumberCell(ExcelWorksheet ws, int rowId, int cell, int value)
+        {
+            ws.Cells[rowId, cell].Value = value;
+            ws.Cells[rowId, cell].Style.Numberformat.Format = "#,##0";
+        }
 
         public void Dispose()
         {

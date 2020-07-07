@@ -31,6 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AppWrapper">
+      <HintPath>..\AppWrapper\bin\Debug\AppWrapper.dll</HintPath>
+    </Reference>
     <Reference Include="BusinessObjects">
       <HintPath>..\BusinessObjects\bin\Debug\BusinessObjects.dll</HintPath>
     </Reference>
@@ -83,10 +86,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AppWrapper\AppWrapper.csproj">
-      <Project>{d8d26b82-20a5-49a7-82ae-99923113f7d1}</Project>
-      <Name>AppWrapper</Name>
-    </ProjectReference>
     <ProjectReference Include="..\CodeCounter\CodeCounter.csproj">
       <Project>{553318db-4f95-48aa-b004-b53912fd868f}</Project>
       <Name>CodeCounter</Name>
@@ -94,6 +93,10 @@
     <ProjectReference Include="..\DevProjects\DevProjects.csproj">
       <Project>{27f48f76-11be-4e53-a208-1081bcf546bf}</Project>
       <Name>DevProjects</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DevTrackerLogging\DevTrackerLogging.csproj">
+      <Project>{99b62566-4a12-45a3-9264-29563ed3784b}</Project>
+      <Name>DevTrackerLogging</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

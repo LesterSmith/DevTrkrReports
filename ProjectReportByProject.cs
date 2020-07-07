@@ -8,11 +8,13 @@ using System.Windows.Forms;
 using System.Data;
 using System.Diagnostics;
 using AppWrapper;
+using DevTrackerLogging;
 namespace DevTrkrReports
 {
     internal class ProjectReportByProject : Reporter
     {
-        public bool Process(List<ReportProjects> projects, List<DeveloperNames> developers) //, DateTime startTime, DateTime endTime)
+        //public bool Process(List<ReportProjects> projects, List<DeveloperNames> developers) //, DateTime startTime, DateTime endTime)
+        public bool Process(List<ProjectNameAndSync> projects, List<DeveloperNames> developers) //, DateTime startTime, DateTime endTime)
         {
             try
             {
@@ -30,7 +32,8 @@ namespace DevTrkrReports
             }
         }
 
-        private void PopulateSheet(List<ReportProjects> projects, List<DeveloperNames> developers, DateTime? startTime, DateTime? endTime)
+        //private void PopulateSheet(List<ReportProjects> projects, List<DeveloperNames> developers, DateTime? startTime, DateTime? endTime)
+        private void PopulateSheet(List<ProjectNameAndSync> projects, List<DeveloperNames> developers, DateTime? startTime, DateTime? endTime)
         {
             try
             {
@@ -83,7 +86,7 @@ namespace DevTrkrReports
 
                         ws.Cells[rowId, 1].Value = "Sub Total";
                         ws.Cells[rowId, 1].Style.Font.Bold = true;
-                        ws.Cells[rowId, 2].Value = tmpHrs;
+                        WriteNumberCell(ws, rowId, 2, tmpHrs);
                         ws.Cells[rowId, 3].Value = tmpMins;
                         ws.Cells[rowId, 4].Value = tmpSecs;
                         rowId += 2;
@@ -98,11 +101,11 @@ namespace DevTrkrReports
 
                     // mow deal with current row data
                     ws.Cells[rowId, 1].Value = dr["Project Name"].GetNotDBNull();
-                    ws.Cells[rowId, 2].Value = thisRowHours;
+                    WriteNumberCell(ws, rowId, 2, thisRowHours);
                     ws.Cells[rowId, 3].Value = thisRowMins;
                     ws.Cells[rowId, 4].Value = thisRowSecs;
                     ws.Cells[rowId, 5].Value = dr["UserDisplayName"];
-                    ws.Cells[rowId, 6].Value = GetPrjPath((string)ws.Cells[rowId, 1].Value, projects);
+                    //ws.Cells[rowId, 6].Value = GetPrjPath((string)ws.Cells[rowId, 1].Value, projects);
                     rowId++;
                     // accumulate ctrs this user
                     subMins += thisRowMins;
@@ -129,7 +132,7 @@ namespace DevTrkrReports
                     rowId++;
                     ws.Cells[rowId, 1].Value = "Sub Total";
                     ws.Cells[rowId, 1].Style.Font.Bold = true;
-                    ws.Cells[rowId, 2].Value = tmpHrs;
+                    WriteNumberCell(ws, rowId, 2, tmpHrs);
                     ws.Cells[rowId, 3].Value = tmpMins;
                     ws.Cells[rowId, 4].Value = tmpSecs;
                     rowId += 1;
@@ -142,7 +145,7 @@ namespace DevTrkrReports
 
                 ws.Cells[rowId + 2, 1].Value = "Grand Total";
                 ws.Cells[rowId + 2, 1].Style.Font.Bold = true;
-                ws.Cells[rowId + 2, 2].Value = tmpHrs;
+                WriteNumberCell(ws, rowId + 2, 2, tmpHrs);
                 ws.Cells[rowId + 2, 3].Value = tmpMins;
                 ws.Cells[rowId + 2, 4].Value = tmpSecs;
 
@@ -151,7 +154,7 @@ namespace DevTrkrReports
             }
             catch (Exception ex)
             {
-                Util.LogError(ex, true);
+                _ = new LogError(ex, false, "ProjectReportByProject.PopulateSheet");
             }
         }
 
@@ -160,7 +163,7 @@ namespace DevTrkrReports
         /// Dynamic SQL either has to be built here or in a stored procedure.
         /// It is easier here and just as safe b/c there are no parameters.
         /// </summary>
-        private string CreateSQL(List<ReportProjects> projects, List<DeveloperNames> developers, DateTime? startTime, DateTime? endTime)
+        private string CreateSQL(List<ProjectNameAndSync> projects, List<DeveloperNames> developers, DateTime? startTime, DateTime? endTime)
         {
             string sql =
             "SET NOCOUNT ON; " +
@@ -174,7 +177,7 @@ namespace DevTrkrReports
             ", UserName, UserDisplayName " +
             "from DevTrkr..WindowEvents w " +
             "where 1=1 " +
-            GetListSQL(projects, "DevProjectName") +
+            GetListSQL(projects) +
             GetListSQL(developers, "UserName") +
             GetDateSQL(startTime, endTime, true) +
             ") x " +
@@ -189,7 +192,7 @@ namespace DevTrkrReports
             "select DevProjectName, DateDiff(second, StartTime, EndTime) as TotalSeconds " +
             "from DevTrkr..WindowEvents w " +
             "where 1=1 " +
-            GetListSQL(projects, "DevProjectName") +
+            GetListSQL(projects) +
             GetListSQL(developers, "UserName") +
             GetDateSQL(startTime, endTime, true) +
             ") x ";

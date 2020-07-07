@@ -7,6 +7,7 @@ using DataHelpers;
 using System.Windows.Forms;
 using System.Data;
 using AppWrapper;
+using DevTrackerLogging;
 namespace DevTrkrReports
 {
     /// <summary>
@@ -22,7 +23,7 @@ namespace DevTrkrReports
     /// </summary>
     public class UserReport : Reporter
     {
-        public bool Process(List<ReportProjects> projects, List<DeveloperNames> developers)
+        public bool Process(List<ProjectNameAndSync> projects, List<DeveloperNames> developers)
         {
             try
             {
@@ -39,7 +40,7 @@ namespace DevTrkrReports
                 return false;
             }
         }
-        private void PopulateSheet(List<ReportProjects> projects, List<DeveloperNames> developers) //, DateTime? startTime, DateTime? endTime)
+        private void PopulateSheet(List<ProjectNameAndSync> projects, List<DeveloperNames> developers) //, DateTime? startTime, DateTime? endTime)
         {
             try
             {
@@ -91,7 +92,7 @@ namespace DevTrkrReports
                         tmpHrs = subHrs + Math.DivRem(subMins, 60, out tmpMins);
 
                         ws.Cells[rowId, 1].Value = "Sub Total";
-                        ws.Cells[rowId, 2].Value = tmpHrs;
+                        WriteNumberCell(ws, rowId, 2, tmpHrs);
                         ws.Cells[rowId, 3].Value = tmpMins;
                         ws.Cells[rowId, 4].Value = tmpSecs;
                         rowId += 2;
@@ -106,7 +107,7 @@ namespace DevTrkrReports
 
                     // mow deal with current row data
                     ws.Cells[rowId, 1].Value = dr["DevProjectName"].GetNotDBNull();
-                    ws.Cells[rowId, 2].Value = thisRowHours;
+                    WriteNumberCell(ws, rowId, 2, thisRowHours);
                     ws.Cells[rowId, 3].Value = thisRowMins;
                     ws.Cells[rowId, 4].Value = thisRowSecs;
                     ws.Cells[rowId, 5].Value = dr["UserDisplayName"].GetNotDBNull();
@@ -137,7 +138,7 @@ namespace DevTrkrReports
                     tmpHrs = subHrs + Math.DivRem(subMins, 60, out tmpMins);
                     rowId++;
                     ws.Cells[rowId, 1].Value = "Sub Total";
-                    ws.Cells[rowId, 2].Value = tmpHrs;
+                    WriteNumberCell(ws, rowId, 2, tmpHrs);
                     ws.Cells[rowId, 3].Value = tmpMins;
                     ws.Cells[rowId, 4].Value = tmpSecs;
                     rowId += 1;
@@ -150,7 +151,7 @@ namespace DevTrkrReports
 
                 ws.Cells[rowId + 2, 1].Value = "Grand Total";
                 ws.Cells[rowId + 2, 1].Style.Font.Bold = true;
-                ws.Cells[rowId + 2, 2].Value = tmpHrs;
+                WriteNumberCell(ws, rowId + 2, 2, tmpHrs);
                 ws.Cells[rowId + 2, 3].Value = tmpMins;
                 ws.Cells[rowId + 2, 4].Value = tmpSecs;
 
@@ -159,7 +160,7 @@ namespace DevTrkrReports
             }
             catch (Exception ex)
             {
-                Util.LogError(ex,true);
+                _ = new LogError(ex,true, "UserReport.PopulateSheet");
             }
         }
 
@@ -170,7 +171,7 @@ namespace DevTrkrReports
             var recur = dr["Recurring"].GetNotDBNullBool() ? "Yes" : "No";
             return $"Meeting Organized By: {dr["Organizer"].GetNotDBNull()} Recurring: {recur}";
         }
-        private string CreateSQL(List<ReportProjects> projects, List<DeveloperNames> developers, DateTime? startTime, DateTime? endTime)
+        private string CreateSQL(List<ProjectNameAndSync> projects, List<DeveloperNames> developers, DateTime? startTime, DateTime? endTime)
         {
             var hlpr = new DHWindowEvents(string.Empty);
             string userName = developers[0].UserName;
@@ -188,7 +189,7 @@ namespace DevTrkrReports
             "where 1 = 1 " +
             GetListSQL(developers, "username") +
             GetDateSQL(StartTime, EndTime, true) +
-            GetListSQL(projects, "DevProjectName") +
+            GetListSQL(projects) +
             "and DevProjectName in (Select DevProjectName from DevTrkr..DevProjects with (nolock) where isnull(DatabaseProject,0)  != 1)" +
             ") as x " +
             "Group by UserDisplayName, DevProjectName  " +
