@@ -243,60 +243,7 @@ namespace DevTrkrReports
 
                         GetSolutionProjects(ref allProjsList);
 
-                        #region refactored to own method
-                        // here we need to know if the selected project has a sln file
-                        // if it does we need the list of projects from it to replace
-                        // the projlist.projects or something like it
-                        // we create a List<ProjectNameAndSync> from ProjList and pass it 
-                        // instead of ProjList.Projects to the reports
-                        //int ptr = lvProjects.SelectedItems[0].Index;
-                        //var slnPath = ProjList.Projects[ptr].DevSLNPath;
-                        //List<ProjectNameAndSync> pList; 
-                        //if (!string.IsNullOrWhiteSpace(slnPath))
-                        //{
-                        //    // the path may have/not have the filename in it, ensure it there
-                        //    if (Path.GetFileName(slnPath).ToLower().IndexOf(".sln") == -1)
-                        //        slnPath = Path.Combine(slnPath, $"{Path.GetFileNameWithoutExtension(slnPath)}.sln");
-
-                        //    ProcessSolution ps = new ProcessSolution(slnPath, false);
-
-                        //    // following line only gets the project fullPath in the PNAS objects
-                        //    pList = ps.ProjectList;
-                        //    // we still need the syncID for the project and ProcessSolution
-                        //    // could not get that for us
-                        //    if (pList.Count > 1)
-                        //    {
-                        //        // the sln had multiple projects, we need a syncID for each
-                        //        var mp = new MaintainProject();
-                        //        foreach (var p in pList)
-                        //        {
-                        //            string url = mp.GetGitURLFromPath(p.Name);
-                        //            var o = ProjList.Projects.Find(x => x.GitURL == url && x.DevProjectName == Path.GetFileNameWithoutExtension(p.Name));
-                        //            if (o != null)
-                        //                p.SyncID = o.SyncID;
-                        //            else
-                        //            {
-                        //                // missing a sync record for project, DevProjects table has bad project entry
-                        //                new LogError($"Could not find a SyncID for {Path.GetFileNameWithoutExtension(p.Name)}, report can't be run.", true, "frmReporter.btnCreateReport_Click(ProjectDetail");
-                        //                return;
-                        //            }
-                        //        }
-                        //    }
-                        //}
-                        //else
-                        //{
-                        //    pList = new List<ProjectNameAndSync>();
-                        //    // no solution file, just the selected project will be used
-                        //    pList.Add(
-                        //            new ProjectNameAndSync
-                        //            {
-                        //                Name = ProjList.Projects[ptr].DevProjectName,
-                        //                SyncID = ProjList.Projects[ptr].SyncID
-                        //            });
-                        //}
-                        #endregion
-
-                        if (pd.Process(allProjsList, devlprs))
+                        if (pd.Process(allProjsList, devlprs, AppList))
                         {
                             ReportCompleteMessage();
                         }
@@ -344,7 +291,7 @@ namespace DevTrkrReports
             var slnPath = ProjList.Projects[projPtr].DevSLNPath;
             List<ProjectNameAndSync> pList = new List<ProjectNameAndSync>();
 
-            if (!string.IsNullOrWhiteSpace(slnPath))
+            if (!string.IsNullOrWhiteSpace(slnPath) && rbSolution.Checked)
             {
                 // the path may have/not have the filename in it, ensure it there
                 if (Path.GetFileName(slnPath).ToLower().IndexOf(".sln") == -1)

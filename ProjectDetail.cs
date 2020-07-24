@@ -13,10 +13,12 @@ namespace DevTrkrReports
 {
     internal class ProjectDetail : Reporter
     {
-        public bool Process(List<ProjectNameAndSync> projects, List<DeveloperNames> developers)
+        #region ..ctor
+        public bool Process(List<ProjectNameAndSync> projects, List<DeveloperNames> developers, List<NotableApplication> apps)
         {
             try
             {
+                AppList = apps;
                 Excel = new ExcelPackage();
                 Excel.Workbook.Worksheets.Add("Project Detail Report");
                 ExcelFile = new FileInfo(FileName);
@@ -30,6 +32,10 @@ namespace DevTrkrReports
                 return false;
             }
         }
+
+        #endregion
+        #region private members
+        List<NotableApplication> AppList { get; set; }
         private int subCodeLines = 0;
         private int subCommentLines = 0;
         private int subBlankLines = 0;
@@ -39,7 +45,8 @@ namespace DevTrkrReports
         private int totCommentLines = 0;
         private int totBlankLines = 0;
         private int totDesignerLines = 0;
-        private int totTotalAllLines = 0;
+        private int totTotalAllLines = 0; 
+        #endregion
 
         private void PopulateSheet(List<ProjectNameAndSync> projects, List<DeveloperNames> developers, DateTime? startTime, DateTime? endTime)
         {
@@ -72,6 +79,9 @@ namespace DevTrkrReports
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     var dr = dt.Rows[i];
+                    string appName = dr["appname"].GetNotDBNull();
+                    var nameObj = AppList.Find(x => x.AppName == appName);
+                    appName = nameObj != null && !string.IsNullOrWhiteSpace(nameObj.AppFriendlyName) ? nameObj.AppFriendlyName : appName;
                     if (i == 0)
                     {
                         lastProject = dt.Rows[i]["Project Name"].GetNotDBNull();
@@ -113,7 +123,7 @@ namespace DevTrkrReports
                     ws.Cells[rowId, 3].Value = thisRowMins;
                     ws.Cells[rowId, 4].Value = thisRowSecs;
                     ws.Cells[rowId, 5].Value = dr["UserDisplayName"];
-                    ws.Cells[rowId, 6].Value = dr["appname"].GetNotDBNull().ToUpper();
+                    ws.Cells[rowId, 6].Value = appName; //dr["appname"].GetNotDBNull().ToUpper();
                     rowId++;
                     // accumulate ctrs this user
                     subMins += thisRowMins;
@@ -240,6 +250,19 @@ namespace DevTrkrReports
                     rowId++;
                     WriteBoldCell(ws, rowId, 1, "Seconds Per Just Code Lines:");
                     WriteBoldNumberCell(ws, rowId, 3, secsPerCodeLine);
+
+                    // get elapsed time from the project/solution
+                    var stTime = (DateTime)ds.Tables[2].Rows[0]["StartTime"];
+                    var eTime = (DateTime)ds.Tables[3].Rows[0]["EndTime"];
+                    var elpTime = ((eTime - stTime).TotalDays) / 7 * 5 * 8 * 3600;
+                    TimeSpan elapsed = eTime.Subtract(stTime);
+                    // Get number of days ago.
+                    double daysAgo = elapsed.TotalDays / 7 * 5;
+                    var sd = stTime.ToString("MM/dd/yyyy");
+                    var ed = eTime.ToString("MM/dd/yyyy");
+                    WriteBoldCell(ws, ++rowId, 1, $"Coding Started: {sd}");
+                    WriteBoldCell(ws, ++rowId, 1, $"Last Coding: {ed}");
+                    WriteBoldCell(ws, ++rowId, 1, $"Elapsed Work Days: {Math.Truncate(daysAgo)}");
                 }
 
                 Excel.SaveAs(ExcelFile);
@@ -309,6 +332,21 @@ namespace DevTrkrReports
                 GetListSQL(developers, "UserName") +
                 GetDateSQL(startTime, endTime, true) +
                 "Order by DevProjectName, RelativeFileName ";
+
+            sql += "select top 1 starttime from DevTrkr..WindowEvents with (nolock) " +
+                   "where 1=1 " +
+                    GetListSQL(projects) +
+                    GetListSQL(developers, "UserName") +
+                    GetDateSQL(startTime, endTime, true) +
+                    "Order by starttime ";
+
+            sql += "select top 1 endtime from DevTrkr..WindowEvents with (nolock) " +
+                   "where 1=1 " +
+                    GetListSQL(projects) +
+                    GetListSQL(developers, "UserName") +
+                    GetDateSQL(startTime, endTime, true) +
+                    "Order by endtime desc ";
+
             return sql;
         }
 

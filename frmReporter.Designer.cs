@@ -54,35 +54,38 @@
             this.label4 = new System.Windows.Forms.Label();
             this.dtStart = new System.Windows.Forms.DateTimePicker();
             this.label2 = new System.Windows.Forms.Label();
-            this.label8 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.cbReportType = new System.Windows.Forms.ComboBox();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.rbSolution = new System.Windows.Forms.RadioButton();
+            this.rbProject = new System.Windows.Forms.RadioButton();
+            this.panel1 = new System.Windows.Forms.Panel();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.projectsContextMenu.SuspendLayout();
             this.menuStrip1.SuspendLayout();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControl1
             // 
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControl1.Location = new System.Drawing.Point(0, 33);
+            this.tabControl1.Location = new System.Drawing.Point(0, 36);
             this.tabControl1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(1100, 734);
+            this.tabControl1.Size = new System.Drawing.Size(1100, 731);
             this.tabControl1.TabIndex = 0;
             // 
             // tabPage1
             // 
             this.tabPage1.BackColor = System.Drawing.SystemColors.Control;
+            this.tabPage1.Controls.Add(this.panel1);
             this.tabPage1.Controls.Add(this.lvProjects);
             this.tabPage1.Controls.Add(this.lbApplications);
             this.tabPage1.Controls.Add(this.label7);
@@ -99,16 +102,14 @@
             this.tabPage1.Controls.Add(this.label4);
             this.tabPage1.Controls.Add(this.dtStart);
             this.tabPage1.Controls.Add(this.label2);
-            this.tabPage1.Controls.Add(this.label8);
             this.tabPage1.Controls.Add(this.label1);
-            this.tabPage1.Controls.Add(this.comboBox1);
             this.tabPage1.Controls.Add(this.cbReportType);
             this.tabPage1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tabPage1.Location = new System.Drawing.Point(4, 29);
             this.tabPage1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.tabPage1.Size = new System.Drawing.Size(1092, 701);
+            this.tabPage1.Size = new System.Drawing.Size(1092, 698);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Reports";
             // 
@@ -122,9 +123,9 @@
             this.lvProjects.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lvProjects.FullRowSelect = true;
             this.lvProjects.HideSelection = false;
-            this.lvProjects.Location = new System.Drawing.Point(132, 74);
+            this.lvProjects.Location = new System.Drawing.Point(132, 97);
             this.lvProjects.Name = "lvProjects";
-            this.lvProjects.Size = new System.Drawing.Size(818, 275);
+            this.lvProjects.Size = new System.Drawing.Size(818, 255);
             this.lvProjects.TabIndex = 21;
             this.toolTip1.SetToolTip(this.lvProjects, "Selecting a solution will automatically pull in all projects in the solution");
             this.lvProjects.UseCompatibleStateImageBehavior = false;
@@ -276,7 +277,7 @@
             // 
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.Location = new System.Drawing.Point(10, 74);
+            this.label5.Location = new System.Drawing.Point(10, 97);
             this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(79, 20);
@@ -338,18 +339,6 @@
             this.label2.TabIndex = 3;
             this.label2.Text = "Developers";
             // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label8.Location = new System.Drawing.Point(545, 32);
-            this.label8.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(110, 20);
-            this.label8.TabIndex = 1;
-            this.label8.Text = "Detail Level";
-            this.label8.Visible = false;
-            // 
             // label1
             // 
             this.label1.AutoSize = true;
@@ -360,22 +349,6 @@
             this.label1.Size = new System.Drawing.Size(111, 20);
             this.label1.TabIndex = 1;
             this.label1.Text = "Type Report";
-            // 
-            // comboBox1
-            // 
-            this.comboBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Items.AddRange(new object[] {
-            "",
-            "Project Time",
-            "User Time",
-            "Application Usage"});
-            this.comboBox1.Location = new System.Drawing.Point(662, 28);
-            this.comboBox1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(180, 33);
-            this.comboBox1.TabIndex = 0;
-            this.comboBox1.Visible = false;
             // 
             // cbReportType
             // 
@@ -403,7 +376,7 @@
             this.fileToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1100, 33);
+            this.menuStrip1.Size = new System.Drawing.Size(1100, 36);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -412,7 +385,7 @@
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.closeToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(54, 29);
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(54, 30);
             this.fileToolStripMenuItem.Text = "&File";
             // 
             // closeToolStripMenuItem
@@ -420,6 +393,37 @@
             this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
             this.closeToolStripMenuItem.Size = new System.Drawing.Size(157, 34);
             this.closeToolStripMenuItem.Text = "&Close";
+            // 
+            // rbSolution
+            // 
+            this.rbSolution.AutoSize = true;
+            this.rbSolution.Checked = true;
+            this.rbSolution.Location = new System.Drawing.Point(21, 6);
+            this.rbSolution.Name = "rbSolution";
+            this.rbSolution.Size = new System.Drawing.Size(254, 26);
+            this.rbSolution.TabIndex = 22;
+            this.rbSolution.TabStop = true;
+            this.rbSolution.Text = "Selected Solutions Projects";
+            this.rbSolution.UseVisualStyleBackColor = true;
+            // 
+            // rbProject
+            // 
+            this.rbProject.AutoSize = true;
+            this.rbProject.Location = new System.Drawing.Point(21, 42);
+            this.rbProject.Name = "rbProject";
+            this.rbProject.Size = new System.Drawing.Size(217, 26);
+            this.rbProject.TabIndex = 23;
+            this.rbProject.Text = "Selected Projects Only";
+            this.rbProject.UseVisualStyleBackColor = true;
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.rbProject);
+            this.panel1.Controls.Add(this.rbSolution);
+            this.panel1.Location = new System.Drawing.Point(662, 5);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(288, 80);
+            this.panel1.TabIndex = 24;
             // 
             // frmReporter
             // 
@@ -443,6 +447,8 @@
             this.projectsContextMenu.ResumeLayout(false);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -470,8 +476,6 @@
         private System.Windows.Forms.CheckBox chkUseDates;
         private System.Windows.Forms.ListBox lbApplications;
         private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem closeToolStripMenuItem;
@@ -483,5 +487,8 @@
         private System.Windows.Forms.ToolStripMenuItem projectsUncheckAll;
         private System.Windows.Forms.ColumnHeader Developer;
         private System.Windows.Forms.ToolTip toolTip1;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.RadioButton rbProject;
+        private System.Windows.Forms.RadioButton rbSolution;
     }
 }
