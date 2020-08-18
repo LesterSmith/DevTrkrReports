@@ -32,6 +32,9 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmReporter));
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.rbProject = new System.Windows.Forms.RadioButton();
+            this.rbSolution = new System.Windows.Forms.RadioButton();
             this.lvProjects = new System.Windows.Forms.ListView();
             this.Projects = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.Developers = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -61,14 +64,11 @@
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.rbSolution = new System.Windows.Forms.RadioButton();
-            this.rbProject = new System.Windows.Forms.RadioButton();
-            this.panel1 = new System.Windows.Forms.Panel();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
+            this.panel1.SuspendLayout();
             this.projectsContextMenu.SuspendLayout();
             this.menuStrip1.SuspendLayout();
-            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -112,6 +112,37 @@
             this.tabPage1.Size = new System.Drawing.Size(1092, 698);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Reports";
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.rbProject);
+            this.panel1.Controls.Add(this.rbSolution);
+            this.panel1.Location = new System.Drawing.Point(662, 5);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(288, 80);
+            this.panel1.TabIndex = 24;
+            // 
+            // rbProject
+            // 
+            this.rbProject.AutoSize = true;
+            this.rbProject.Location = new System.Drawing.Point(21, 42);
+            this.rbProject.Name = "rbProject";
+            this.rbProject.Size = new System.Drawing.Size(217, 26);
+            this.rbProject.TabIndex = 23;
+            this.rbProject.Text = "Selected Projects Only";
+            this.rbProject.UseVisualStyleBackColor = true;
+            // 
+            // rbSolution
+            // 
+            this.rbSolution.AutoSize = true;
+            this.rbSolution.Checked = true;
+            this.rbSolution.Location = new System.Drawing.Point(21, 6);
+            this.rbSolution.Name = "rbSolution";
+            this.rbSolution.Size = new System.Drawing.Size(254, 26);
+            this.rbSolution.TabIndex = 22;
+            this.rbSolution.TabStop = true;
+            this.rbSolution.Text = "Selected Solutions Projects";
+            this.rbSolution.UseVisualStyleBackColor = true;
             // 
             // lvProjects
             // 
@@ -394,37 +425,6 @@
             this.closeToolStripMenuItem.Size = new System.Drawing.Size(157, 34);
             this.closeToolStripMenuItem.Text = "&Close";
             // 
-            // rbSolution
-            // 
-            this.rbSolution.AutoSize = true;
-            this.rbSolution.Checked = true;
-            this.rbSolution.Location = new System.Drawing.Point(21, 6);
-            this.rbSolution.Name = "rbSolution";
-            this.rbSolution.Size = new System.Drawing.Size(254, 26);
-            this.rbSolution.TabIndex = 22;
-            this.rbSolution.TabStop = true;
-            this.rbSolution.Text = "Selected Solutions Projects";
-            this.rbSolution.UseVisualStyleBackColor = true;
-            // 
-            // rbProject
-            // 
-            this.rbProject.AutoSize = true;
-            this.rbProject.Location = new System.Drawing.Point(21, 42);
-            this.rbProject.Name = "rbProject";
-            this.rbProject.Size = new System.Drawing.Size(217, 26);
-            this.rbProject.TabIndex = 23;
-            this.rbProject.Text = "Selected Projects Only";
-            this.rbProject.UseVisualStyleBackColor = true;
-            // 
-            // panel1
-            // 
-            this.panel1.Controls.Add(this.rbProject);
-            this.panel1.Controls.Add(this.rbSolution);
-            this.panel1.Location = new System.Drawing.Point(662, 5);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(288, 80);
-            this.panel1.TabIndex = 24;
-            // 
             // frmReporter
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
@@ -444,11 +444,11 @@
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
             this.projectsContextMenu.ResumeLayout(false);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 

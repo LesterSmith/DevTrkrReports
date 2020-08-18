@@ -24,6 +24,7 @@ namespace DevTrkrReports
             Application.DoEvents();
             this.Height = 520;
         }
+
         private void frmReporter_Load(object sender, EventArgs e)
         {
             Application.DoEvents();
@@ -47,12 +48,24 @@ namespace DevTrkrReports
                 lvProjects.Items.Add(lvi);
             }
 
-            List<DeveloperNames> developers = hlpr.GetDeveloperNames();
             lbDevelopers.Items.Clear();
             lbDevelopers.Items.Add("All");
-            foreach (var developer in developers)
-                lbDevelopers.Items.Add(developer.UserName + " - " + developer.UserDisplayName);
-
+            List<DeveloperNames> developers = hlpr.GetDeveloperNames();
+            if (AppWrapper.AppWrapper.UserPermissionLevel == PermissionLevel.Developer)
+            {
+                var devObj = developers.Find(o => o.UserName.ToLower() == Environment.UserName.ToLower());
+                if (devObj != null)
+                {
+                    lbDevelopers.Items.Add(devObj.UserName + " - " + devObj.UserDisplayName);
+                    lbDevelopers.SelectedIndex = 1;
+                    lbDevelopers.Enabled = false;
+                }
+            }
+            else 
+            { 
+                foreach (var developer in developers)
+                    lbDevelopers.Items.Add(developer.UserName + " - " + developer.UserDisplayName);
+            }
             AppList = hlpr.GetNotableApplications();
             lbApplications.Items.Clear();
             lbApplications.Items.Add("All Applications");

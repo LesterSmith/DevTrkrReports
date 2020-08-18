@@ -34,6 +34,7 @@ namespace DevTrkrReports
         }
 
         #endregion
+
         #region private members
         List<NotableApplication> AppList { get; set; }
         private int subCodeLines = 0;
@@ -329,7 +330,9 @@ namespace DevTrkrReports
             sql += "select * from DevTrkr..ProjectFiles with (nolock) " +
                 "where 1=1 " +
                 GetListSQL(projects) +
-                GetListSQL(developers, "UserName") +
+                // username is not in ProjectFiles table and would not make sense b/c the results
+                // of all user is accumulated by file and has no specific user detail
+                //GetListSQL(developers, "UserName") +
                 GetDateSQL(startTime, endTime, true) +
                 "Order by DevProjectName, RelativeFileName ";
 
